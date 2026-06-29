@@ -1231,6 +1231,7 @@ const MAX_FIREWORK_PARTICLES = 1100; // garde-fou pour rester fluide si plusieur
 let surpriseOffered = false;
 let fwParticles = [];
 let fwRockets = [];
+let photoFireworkActive = false;
 let fireworksAnimId = null;
 let rocketSchedulerId = null;
 let fwLastTime = 0;
@@ -1256,7 +1257,7 @@ img.src = src;
 
 /** Échantillonne une image en une grille de points colorés (offsets normalisés autour du centre). */
 function sampleImageTargets(img) {
-    const sampleSize = 34; // résolution de la mosaïque : plus petit = plus fluide, plus grand = plus détaillé
+    const sampleSize = 70; // résolution de la mosaïque : plus petit = plus fluide, plus grand = plus détaillé
     const ratio = img.naturalHeight / img.naturalWidth;
 
     const off = document.createElement("canvas");
@@ -1269,8 +1270,8 @@ function sampleImageTargets(img) {
     const data = offCtx.getImageData(0, 0, off.width, off.height).data;
     const targets = [];
 
-    for (let y = 0; y < off.height; y += 4) {
-        for (let x = 0; x < off.width; x += 4) {
+    for (let y = 0; y < off.height; y += 2) {
+        for (let x = 0; x < off.width; x += 2) {
             const i = (y * off.width + x) * 4;
             if (data[i + 3] < 40) continue; // pixel transparent : on ignore
 
@@ -1469,34 +1470,48 @@ function explodeFirework(x, y, baseColor) {
     }
 
     const hasPhotos = photoTargetSets.length > 0;
+        if (photoFireworkActive) {
+    spawnClassicBurst(x, y, baseColor, 45);
+    return;
+    }
+    
     const roll = Math.random();
 
     let mode = "burst";
-    if (hasPhotos && roll < 0.3) mode = "photo";
-    else if (roll < (hasPhotos ? 0.65 : 0.5)) mode = "heart";
+
+        if (hasPhotos && roll < 0.3) {
+    mode = "photo";
+    photoFireworkActive = true;
+        } else if (roll < (hasPhotos ? 0.65 : 0.5)) {
+    mode = "heart";
+    }
 
     if (mode === "burst") {
         spawnClassicBurst(x, y, baseColor, 40 + Math.floor(Math.random() * 20));        
         return;
     }
 
-    const size = 150 + Math.random() * 50;
-    const targets = mode === "photo"
+        const size = 260 + Math.random() * 80;
+        const targets = mode === "photo"
         ? photoTargetSets[Math.floor(Math.random() * photoTargetSets.length)]
         : createHeartTargets();
 
+            if (mode === "photo") {
+                photoFireworkActive = true;
+            }
 
-    const limitedTargets = targets.slice(0, 350);
-    limitedTargets.forEach(target => {
+        const limitedTargets = targets;
+        limitedTargets.forEach(target => {
         const color = target.color || baseColor;
         const p = new FireworkParticle(x, y, color);
         p.size = mode === "photo" ? 2.4 : 3;
-        p.setTarget(x + target.dx * size, y + target.dy * size, 700);
+        p.setTarget(x + target.dx * size, y + target.dy * size, 3500);
         fwParticles.push(p);
     });
 }
 
 function launchRocket() {
+    if (photoFireworkActive) return;
     const targetX = window.innerWidth * (0.12 + Math.random() * 0.76);
     const targetY = window.innerHeight * (0.16 + Math.random() * 0.34);
 
@@ -1528,6 +1543,10 @@ function animateFireworks(time) {
 
     fwParticles.forEach(p => { p.update(dt); p.draw(); });
     fwParticles = fwParticles.filter(p => !p.isDead());
+
+        if (photoFireworkActive && fwParticles.length === 0) {
+    photoFireworkActive = false;
+}
 
     fwCtx.globalAlpha = 1;
     fireworksAnimId = requestAnimationFrame(animateFireworks);
