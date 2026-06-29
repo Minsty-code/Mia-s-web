@@ -1,0 +1,1645 @@
+/* =========================
+   VARIABLES
+========================= */
+
+:root {
+    --violet-dark: #3b006b;
+    --violet: #5E00AB;
+    --pink: #E010C3;
+    --yellow: #FCCA00;
+    --text-color: #420344;
+    --card-color: #FFD4F7;
+    --heart-glow: #ff0055;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes arrivee {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes descente {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes menuOpen {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   GLOBAL
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(
+        135deg,
+        var(--violet-dark),
+        var(--violet) 35%,
+        var(--pink) 75%,
+        var(--yellow)
+    );
+}
+
+/* =========================
+   FOND
+========================= */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.20);
+    z-index: 1;
+}
+
+/* =========================
+   LOGOS
+========================= */
+
+.logo {
+    position: fixed;
+    width: 175px;
+    height: 175px;
+    opacity: 0.7;
+    z-index: 0;
+}
+
+.logo-left {
+    left: 2px;
+    top: 53%;
+    transform: translateY(-50%);
+}
+
+.logo-right {
+    right: 2px;
+    top: 53%;
+    transform: translateY(-50%);
+}
+
+/* =========================
+   BOITE PRINCIPALE
+========================= */
+
+.main-box {
+    position: fixed;
+    top: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70vw;
+    height: 90vh;
+    border-radius: 35px;
+    background:
+        radial-gradient(circle at 20% 15%, rgba(255, 120, 200, 0.25), transparent 18%),
+        radial-gradient(circle at 85% 25%, rgba(255, 170, 220, 0.20), transparent 15%),
+        radial-gradient(circle at 70% 80%, rgba(255, 120, 200, 0.15), transparent 20%),
+        rgba(255, 255, 255, 0.92);
+    box-shadow:
+        0 0 40px rgba(255,255,255,0.4),
+        0 20px 60px rgba(0,0,0,0.15);
+    z-index: 5;
+}
+
+/* =========================
+   TITRES
+========================= */
+
+.apparition {
+    animation: arrivee 3s;
+}
+
+.secondeapparition {
+    opacity: 0;
+    top: 25vh;
+    animation: arrivee 3s ease forwards;
+    animation-delay: 2s;
+    color: #7A0A37;
+}
+
+h1, h2 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    text-align: center;
+    color: var(--text-color);
+    font-family: "Dancing Script", cursive;
+}
+
+h1 {
+    top: 10vh;
+    font-size: 50px;
+    font-weight: 700;
+}
+
+h2 {
+    top: 0vh;
+    font-size: 35px;
+}
+
+/* =========================
+   CARTES
+========================= */
+
+.box {
+    position: absolute;
+    transform: translateX(-50%);
+    width: 20vw;
+    height: 20vh;
+    border-radius: 35px;
+    background: var(--card-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    z-index: 6;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease;
+}
+
+.box:hover {
+    transform: translateX(-50%) scale(1.08);
+    box-shadow:
+        0 0 20px rgba(255, 105, 180, 0.5),
+        0 0 40px rgba(255, 105, 180, 0.4),
+        0 10px 30px rgba(255, 105, 180, 0.3);
+    filter: brightness(1.08);
+}
+
+.card-image {
+    width: 85%;
+    height: 85%;
+    object-fit: cover;
+    border-radius: 30px;
+    display: block;
+    transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.box:hover .card-image {
+    transform: scale(1.05);
+    filter: brightness(1.08) saturate(1.15);
+}
+
+.box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+    transition: left 0.6s ease;
+}
+
+.box:hover::before {
+    left: 140%;
+}
+
+/* Positions */
+.box-1 { top: 45vh; left: 28%; }
+.box-2 { top: 45vh; left: 50%; }
+.box-3 { top: 45vh; left: 72%; }
+.box-4 { top: 70vh; left: 28%; }
+.box-5 { top: 70vh; left: 50%; }
+.box-6 { top: 70vh; left: 72%; }
+
+/* =========================
+   COEURS
+========================= */
+
+#hearts-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.heart {
+    position: fixed;
+    width: 120px;
+    height: 110px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: "Dancing Script", cursive;
+    font-size: 20px;
+    text-align: center;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.heart::before {
+    content: "❤";
+    position: absolute;
+    font-size: 120px;
+    color: rgba(255,0,0,0.12);
+    text-shadow:
+        0 0 5px #ff0000,
+        0 0 10px #ff0000,
+        0 0 20px #ff0000,
+        0 0 40px #990000;
+    z-index: -1;
+}
+
+/* =========================
+   MENU MUSIQUE
+========================= */
+
+.menu-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 9999;
+}
+
+#heart-btn {
+    width: 70px;
+    height: 70px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 32px;
+    color: #540034;
+    background: linear-gradient(135deg, #B01956, #DE598F);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 15px rgba(255,0,120,.4), 0 0 35px rgba(180,0,255,.25);
+    transition: .35s ease;
+}
+
+#heart-btn:hover {
+    transform: scale(1.12) rotate(10deg);
+    box-shadow: 0 0 25px rgba(255,255,255,.8), 0 0 50px rgba(255,105,180,.55);
+}
+
+#menu {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 25px;
+    background: rgba(20,15,35,.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 0 25px rgba(255,0,120,.2), 0 10px 30px rgba(0,0,0,.4);
+    animation: menuOpen .35s ease;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+#menu.open {
+    display: flex;
+}
+
+#music-btn {
+    width: 270px;
+    padding: 15px;
+    border: none;
+    border-radius: 18px;
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff2f73, #c2185b, #7b1fa2);
+    box-shadow: 0 0 15px rgba(255,47,115,.4);
+    transition: .3s ease;
+}
+
+#music-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 0 25px rgba(255,47,115,.7);
+}
+
+#prev-btn, #next-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    color: white;
+    background: linear-gradient(135deg, #2a183f, #4b206f);
+    box-shadow: 0 0 12px rgba(180,0,255,.25);
+    transition: .3s ease;
+}
+
+#prev-btn:hover, #next-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(255,0,120,.45);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+    .main-box { width: 90vw; }
+    .box { width: 26vw; }
+    h1 { font-size: 42px; }
+    h2 { font-size: 28px; }
+}
+
+/* =========================
+   POPUP TIMER
+========================= */
+
+#timer-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#timer-popup.active {
+    opacity: 1;
+}
+
+#timer-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%) scale(.85);
+    width: 85vw; height: 80vh;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #fff8fc, #ffeef8, #ffdff1);
+    box-shadow: 0 0 40px rgba(255,255,255,.7), 0 0 90px rgba(255,80,150,.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+}
+
+#timer-popup.active #timer-content {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#timer-content::before {
+    content: "❤";
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 420px;
+    color: rgba(255,0,85,.06);
+    z-index: 0;
+    line-height: 1;
+}
+
+#timer-content h2 {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    top: 5vh;
+    font-size: 55px;
+    color: #ff2f73;
+    font-family: "Dancing Script", cursive;
+}
+
+#relationship-timer {
+    position: relative;
+    z-index: 2;
+    width: 75%;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 20px;
+    padding: 20px;
+    margin-bottom: 40px;
+    font-family: "Dancing Script", cursive;
+    font-size: 32px;
+    color: #91093E;
+}
+
+.time-box {
+    background: rgba(255,255,255,.75);
+    border-radius: 25px;
+    padding: 18px;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(255,100,150,.25);
+    transition: .3s;
+}
+
+.time-box:hover {
+    transform: scale(1.08);
+}
+
+#close-timer {
+    position: absolute;
+    top: 20px; right: 25px;
+    width: 50px; height: 50px;
+    border: none; border-radius: 50%;
+    background: #91093E; color: white;
+    font-size: 22px; cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transition: .3s; z-index: 10;
+}
+
+#close-timer:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px #ff4d88;
+}
+
+#timer-hearts {
+    position: absolute; inset: 0;
+    pointer-events: none; overflow: hidden; z-index: 0;
+}
+
+/* =========================
+   POPUP FLEURS
+========================= */
+
+#flowers-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#flowers-popup.active {
+    opacity: 1;
+}
+
+#flowers-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%) scale(.85);
+    width: 85vw; height: 80vh;
+    border-radius: 40px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 0 40px rgba(255,255,255,.15), 0 0 90px rgba(255,80,150,.35);
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+}
+
+#flowers-popup.active #flowers-content {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#flowers-scene {
+    --stem-color: #00ffc8;
+    --stem-glow: #00ffaa;
+    position: relative;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(80,0,90,0.35) 0%, rgba(10,2,20,0) 60%),
+        radial-gradient(ellipse 120% 80% at 50% 0%, #0c0420 0%, #060010 45%, #000000 100%);
+    cursor: none;
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+#flowers-stars {
+    position: absolute; inset: 0;
+    z-index: 1; pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.5) 50%, transparent 51%),
+        radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,.4) 50%, transparent 51%),
+        radial-gradient(1px 1px at 60% 30%, rgba(255,255,255,.6) 50%, transparent 51%),
+        radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,.3) 50%, transparent 51%),
+        radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,.5) 50%, transparent 51%),
+        radial-gradient(1px 1px at 45% 85%, rgba(255,255,255,.35) 50%, transparent 51%),
+        radial-gradient(1px 1px at 15% 45%, rgba(255,255,255,.4) 50%, transparent 51%),
+        radial-gradient(1px 1px at 70% 50%, rgba(255,255,255,.3) 50%, transparent 51%);
+    opacity: .6;
+}
+
+#flowers-hint {
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    color: #ffe9ff;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px #ff6bf0, 0 0 18px #ff2bd6;
+    opacity: .85;
+    transition: opacity 1.4s ease;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#flowers-hint.fade { opacity: 0; }
+
+#flowers-cursor-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 26px; height: 26px;
+    margin: -13px 0 0 -13px;
+    border-radius: 50%;
+    /* Superbe halo de lumière Or néon qui suit le mouvement */
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(252, 202, 0, 0.6) 35%, rgba(252, 202, 0, 0) 70%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 9999;
+    filter: blur(0.5px);
+    will-change: transform;
+    display: block !important; /* Force l'affichage */
+}
+
+#flowers-ground-glow {
+    position: absolute;
+    bottom: 14px; left: 50%;
+    width: 340px; height: 60px;
+    margin-left: -170px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,255,200,.35) 0%, rgba(255,40,220,.18) 45%, rgba(0,0,0,0) 75%);
+    filter: blur(4px);
+    z-index: 3; pointer-events: none;
+    animation: groundPulse 4s ease-in-out infinite;
+}
+
+@keyframes groundPulse {
+    0%,100% { opacity: .7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+}
+
+#flowers-hearts {
+    position: absolute; inset: 0;
+    z-index: 2; pointer-events: none; overflow: hidden;
+}
+
+.flower-heart {
+    position: absolute; bottom: -40px; left: 0;
+    opacity: 0; will-change: transform, opacity;
+    animation-name: floatUpFlower;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    user-select: none;
+}
+
+@keyframes floatUpFlower {
+    0%   { transform: translate(0,0) rotate(0deg) scale(var(--s)); opacity: 0; }
+    12%  { opacity: .9; }
+    50%  { transform: translate(calc(var(--d) * 1px), -55vh) rotate(18deg) scale(var(--s)); opacity: .75; }
+    88%  { opacity: .5; }
+    100% { transform: translate(calc(var(--d) * -1px), -115vh) rotate(-14deg) scale(var(--s)); opacity: 0; }
+}
+
+#flowers {
+    position: absolute;
+    left: 50%; bottom: 44px;
+    width: 0; height: 0;
+    z-index: 10; opacity: 0;
+    transform: scaleY(0);
+    transform-origin: bottom center;
+    transition: transform 1s ease-out, opacity .9s ease-out;
+}
+
+#flowers.grown {
+    opacity: 1;
+    transform: scaleY(1);
+}
+
+.flower {
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 8px; margin-left: -4px;
+    transform-origin: 50% 100%;
+    will-change: transform;
+}
+
+.stem {
+    position: relative;
+    width: 6px; margin: 0 auto; height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to top, #054a3a 0%, var(--stem-color) 60%, #b6fff0 100%);
+    box-shadow:
+        0 0 6px var(--stem-glow),
+        0 0 14px var(--stem-glow),
+        0 0 26px rgba(0,255,200,.5);
+}
+
+.leaf-anchor {
+    position: absolute;
+    width: 0; height: 0;
+}
+
+.leaf {
+    position: absolute;
+    width: 30px; height: 16px;
+    border-radius: 0 50% 50% 50%;
+    background: linear-gradient(135deg, #013a2c, #00ffb0);
+    box-shadow: 0 0 8px #00ffaa, 0 0 16px rgba(0,255,170,.6);
+    animation: leafSway 3.4s ease-in-out infinite alternate;
+}
+
+.leaf-anchor.left .leaf { transform-origin: right center; right: 0; }
+.leaf-anchor.right .leaf { transform-origin: left center; left: 0; }
+
+@keyframes leafSway {
+    0% { transform: rotate(-5deg); }
+    100% { transform: rotate(7deg); }
+}
+
+.bloom-pos {
+    position: absolute;
+    left: 50%; width: 0; height: 0;
+}
+
+.bloom {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 0; height: 0;
+    transform: translate(-50%,-50%);
+    animation: pulse 3.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); }
+    50% { transform: translate(-50%,-50%) scale(1.07); }
+}
+
+.petal {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 18px; height: 38px;
+    margin-left: -9px; margin-top: -38px;
+    border-radius: 50%;
+    transform-origin: 50% 100%;
+    background: linear-gradient(to top, var(--petal-dark), var(--petal-light));
+    box-shadow: 0 0 10px var(--petal-glow), 0 0 22px var(--petal-glow);
+    opacity: .95;
+}
+
+.core {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 22px; height: 22px;
+    margin: -11px 0 0 -11px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffffff 0%, var(--core-color) 60%, transparent 100%);
+    box-shadow: 0 0 14px var(--core-color), 0 0 28px var(--core-color);
+}
+
+.theme-pink {
+    --petal-dark: #7a0058; --petal-light: #ff2bd6; --petal-glow: #ff5fe6; --core-color: #ffb3f4;
+}
+.theme-cyan {
+    --petal-dark: #003a4d; --petal-light: #00d9ff; --petal-glow: #5ff1ff; --core-color: #bdf9ff;
+}
+.theme-gold {
+    --petal-dark: #5a3a00; --petal-light: #ffb700; --petal-glow: #ffe27a; --core-color: #fff4c2;
+}
+
+#close-flowers {
+    position: absolute;
+    top: 20px; right: 25px;
+    width: 50px; height: 50px;
+    border: none; border-radius: 50%;
+    background: #91093E; color: white;
+    font-size: 22px; cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transition: .3s; z-index: 10;
+}
+
+#close-flowers:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px #ff4d88;
+}
+
+/* =========================
+   POPUP PARTICULES NEON (CARTE 3)
+========================= */
+
+#particles-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#particles-popup.active {
+    opacity: 1;
+}
+
+#particles-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%) scale(.85);
+    width: 85vw; height: 80vh;
+    border-radius: 40px;
+    overflow: hidden;
+    background: #03030d;
+    box-shadow: 0 0 40px rgba(255,255,255,.15), 0 0 90px rgba(255,80,150,.35);
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+    cursor: none; /* Cache la flèche classique pour mettre la souris néon */
+}
+
+#particles-cursor-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 26px; height: 26px;
+    margin: -13px 0 0 -13px;
+    border-radius: 50%;
+    /* Superbe halo de lumière Cyan néon qui suit le mouvement */
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(0,255,242,0.6) 35%, rgba(0,255,242,0) 70%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 9999;
+    filter: blur(0.5px);
+    will-change: transform;
+    display: block !important; /* Force l'affichage */
+}
+
+#particles-hint {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+
+    color: #ffffff;
+    font-family: "Dancing Script", cursive;
+    font-size: 18px;
+    font-weight: 700;
+
+    text-shadow:
+        0 0 8px #ff5ce6,
+        0 0 18px #ff2bd6,
+        0 0 30px #ff2bd6;
+
+    pointer-events: none;
+
+    animation: hintPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+    0%,100% {
+        opacity: .75;
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.08);
+    }
+}
+
+#particles-popup.active #particles-content {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#close-particles {
+    position: absolute;
+    top: 20px; right: 25px;
+    width: 50px; height: 50px;
+    border: none; border-radius: 50%;
+    background: #91093E; color: white;
+    font-size: 22px; cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transition: .3s; z-index: 10;
+}
+
+#close-particles:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px #ff4d88;
+}
+
+#canvas {
+    display: block;
+    width: 100%; height: 100%;
+}
+
+/* =========================
+   POPUP LETTRE (CARTE 4)
+========================= */
+
+#letter-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#letter-popup.active { opacity: 1; }
+
+#letter-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%) scale(.85);
+    width: 85vw; height: 80vh;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #fff8fc, #ffeef8, #ffdff1);
+    box-shadow: 0 0 40px rgba(255,255,255,.7), 0 0 90px rgba(255,80,150,.35);
+    overflow: hidden;
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+}
+
+#letter-content::before {
+    content: "💌";
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 350px;
+    color: rgba(255,0,85,.04);
+    z-index: 0;
+}
+
+#letter-popup.active #letter-content { transform: translate(-50%, -50%) scale(1); }
+
+#desk-scene {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2;
+}
+
+#letter-hearts {
+    position: absolute; inset: 0;
+    pointer-events: none; overflow: hidden; z-index: 0;
+}
+
+.bg-heart {
+    position: absolute; bottom: -30px;
+    color: #ff99b3; font-size: 26px;
+    text-shadow: 0 0 12px rgba(255,105,180,0.8), 0 0 25px rgba(255,20,147,0.5);
+    animation: floatUpBg linear infinite;
+    opacity: 0;
+}
+
+@keyframes floatUpBg {
+    0% { transform: translateY(0) scale(0.8) rotate(-15deg); opacity: 0; }
+    15% { opacity: 0.8; }
+    85% { opacity: 0.8; }
+    100% { transform: translateY(-110vh) scale(1.4) rotate(25deg); opacity: 0; }
+}
+
+.envelope-wrapper {
+    position: relative;
+    width: 320px; height: 220px;
+    cursor: pointer;
+    z-index: 5;
+    transition: transform 0.3s;
+}
+
+.envelope-wrapper:hover {
+    transform: scale(1.03);
+}
+
+.envelope-back {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #c2183b, #990f2b);
+    border-radius: 8px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3), 0 15px 35px rgba(0,0,0,0.25);
+}
+
+.envelope-front {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, #f23558, #cc1b3a);
+    clip-path: polygon(0 0, 50% 45%, 100% 0, 100% 100%, 0 100%);
+    border-radius: 8px;
+    z-index: 3;
+}
+
+.flap {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 65%;
+    background: linear-gradient(to bottom, #ff4d6d, #d91c3d);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 4;
+    filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.2));
+}
+
+.heart-sticker {
+    position: absolute; top: 55%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px;
+    width: 48px; height: 48px;
+    background: radial-gradient(circle, #ff2a55, #a60021);
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    color: #ffd9e6;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+    border: 2px solid #800018;
+    z-index: 5;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.paper {
+    position: absolute;
+    bottom: 5px; left: 5%;
+    width: 90%; height: 95%;
+    background-color: #ffffff !important;
+    border-radius: 5px;
+    padding: 25px 25px 25px 35px;
+    box-sizing: border-box;
+    z-index: 2;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    background-image: repeating-linear-gradient(transparent, transparent 29px, #ffccd5 29px, #ffccd5 30px);
+    background-attachment: local;
+}
+
+#typewriter-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: 22px;
+    color: #91093E;
+    line-height: 30px;
+    white-space: pre-wrap;
+    margin-top: 9px;
+}
+
+.envelope-wrapper.open .flap {
+    transform: rotateX(180deg);
+    z-index: 1;
+}
+
+.envelope-wrapper.open .heart-sticker {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+.envelope-wrapper.open .paper {
+    animation: pullOut 1.5s forwards;
+}
+
+@keyframes pullOut {
+    0% { transform: translateY(0); z-index: 2; }
+    40% { transform: translateY(-180px); z-index: 2; }
+    50% { transform: translateY(-180px); z-index: 6; }
+    100% {
+        transform: translateY(-40px) scale(1.15);
+        z-index: 6;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+}
+
+#close-letter {
+    position: absolute; top: 20px; right: 25px;
+    width: 50px; height: 50px; border: none; border-radius: 50%;
+    background: #91093E; color: white; font-size: 22px;
+    cursor: pointer; display: flex; justify-content: center; align-items: center;
+    z-index: 20; transition: .3s;
+}
+
+#close-letter:hover {
+    transform: scale(1.15); box-shadow: 0 0 20px #ff4d88;
+}
+
+/* =========================
+   POPUP RENDEZ-VOUS (CARTE 5)
+========================= */
+
+#date-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#date-popup.active { opacity: 1; }
+
+#date-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%) scale(.85);
+    width: 85vw; height: 80vh;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #fff8fc, #ffeef8, #ffdff1);
+    box-shadow: 0 0 40px rgba(255,255,255,.7), 0 0 90px rgba(255,80,150,.35);
+    overflow: hidden;
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+}
+
+#date-popup.active #date-content {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#date-hearts {
+    position: absolute; inset: 0;
+    pointer-events: none; overflow: hidden; z-index: 0;
+}
+
+#close-date {
+    position: absolute; top: 20px; right: 25px;
+    width: 50px; height: 50px; border: none; border-radius: 50%;
+    background: #91093E; color: white; font-size: 22px;
+    cursor: pointer; display: flex; justify-content: center; align-items: center;
+    z-index: 20; transition: .3s;
+}
+
+#close-date:hover {
+    transform: scale(1.15); box-shadow: 0 0 20px #ff4d88;
+}
+
+/* ---- Étapes : une seule visible à la fois ---- */
+
+.date-step {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 35px 50px 85px; /* avant : 50px 50px 85px */
+    z-index: 2;
+    text-align: center;
+}
+
+.date-step.active {
+    display: flex;
+}
+
+.date-title {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin: 0 0 25px;
+    font-family: "Dancing Script", cursive;
+    font-size: 42px;
+    color: #91093E;
+}
+
+/* ---- Étape 0 : Yes / No ---- */
+
+.date-question-buttons {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    height: 220px;
+    margin-top: 25px;
+}
+
+.date-btn {
+    position: absolute;
+    top: 50%;
+    padding: 16px 38px;
+    border: none;
+    border-radius: 30px;
+    font-family: "Dancing Script", cursive;
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: left .16s cubic-bezier(.34,1.56,.64,1), top .16s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+}
+
+.date-btn-yes {
+    left: calc(50% - 130px);
+    background: linear-gradient(135deg, #2ecc71, #1a9c54);
+    box-shadow: 0 0 15px rgba(46,204,113,.5);
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.date-btn-yes:hover {
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 0 25px rgba(46,204,113,.8);
+}
+
+.date-btn-no {
+    left: calc(50% + 10px);
+    background: linear-gradient(135deg, #ff2f73, #c2185b);
+    box-shadow: 0 0 15px rgba(255,47,115,.5);
+}
+
+.date-error-msg {
+    min-height: 24px;
+    margin-top: 18px;
+    color: #c2185b;
+    font-weight: 700;
+}
+
+.date-error-msg.shake {
+    animation: dateErrorShake .4s ease;
+}
+
+@keyframes dateErrorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* ---- Étape 1 : thèmes ---- */
+
+.theme-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 520px;
+    margin: 25px 0;
+}
+
+.theme-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 10px;
+    border: 2px solid transparent;
+    border-radius: 22px;
+    background: rgba(255,255,255,.65);
+    color: #91093E;
+    font-family: "Dancing Script", cursive;
+    font-size: 19px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.theme-emoji {
+    font-size: 30px;
+}
+
+.theme-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255,80,150,.3);
+}
+
+.theme-card.selected {
+    background: linear-gradient(135deg, #ff2f73, #c2185b, #7b1fa2);
+    color: white;
+    border-color: white;
+    box-shadow: 0 0 20px rgba(255,47,115,.6);
+}
+
+/* ---- Étape 2 : lieu ---- */
+
+.date-input {
+    position: relative;
+    z-index: 2;
+    width: 80%;
+    max-width: 420px;
+    margin-top: 15px;
+    padding: 16px 22px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255,255,255,.75);
+    font-family: "Dancing Script", cursive;
+    font-size: 19px;
+    color: #420344;
+    box-shadow: inset 0 0 0 2px rgba(255,47,115,.25);
+    outline: none;
+    transition: .25s;
+}
+
+.date-input::placeholder {
+    color: rgba(66,3,68,.45);
+}
+
+.date-input:focus {
+    box-shadow: inset 0 0 0 2px #ff2f73, 0 0 14px rgba(255,47,115,.4);
+}
+
+/* ---- Étape 3 : calendrier ---- */
+
+.mini-calendar {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 340px;   /* avant : 380px */
+    margin-top: -10px;  /* avant : 10px */
+    padding: 16px;      /* avant : 20px */
+    border-radius: 25px;
+    background: rgba(255,255,255,.6);
+    box-shadow: 0 0 20px rgba(255,100,150,.25);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-family: "Dancing Script", cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: #91093E;
+}
+
+.cal-nav {
+    width: 36px; height: 36px;
+    border: none; border-radius: 50%;
+    background: linear-gradient(135deg, #2a183f, #4b206f);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.cal-nav:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(180,0,255,.4);
+}
+
+.calendar-weekdays,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    text-align: center;
+}
+
+.calendar-weekdays span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #91093E;
+    opacity: .7;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,.75);
+    color: #420344;
+    font-size: 13px; /* avant : 14px */
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.calendar-day:hover {
+    background: #ffd4f0;
+    transform: scale(1.08);
+}
+
+.calendar-day.today {
+    box-shadow: inset 0 0 0 2px #ff2f73;
+}
+
+.calendar-day.selected {
+    background: linear-gradient(135deg, #ff2f73, #c2185b);
+    color: white;
+    box-shadow: 0 0 12px rgba(255,47,115,.6);
+}
+
+/* ---- Étape 4 : message final ---- */
+
+.final-message {
+    position: relative;
+    z-index: 2;
+    max-width: 480px;
+}
+
+.final-emoji {
+    margin: 0 0 5px;
+    font-size: 38px;
+}
+
+.final-summary {
+    margin: 10px 0;
+    font-size: 19px;
+    color: #420344;
+}
+
+.final-kiss {
+    font-family: "Dancing Script", cursive;
+    font-size: 28px;
+    color: #ff2f73;
+}
+
+/* ---- Bouton "Valider" commun (bas droite de la popup) ---- */
+
+.date-validate {
+    position: absolute;
+    bottom: 25px; right: 30px;
+    z-index: 2;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff2f73, #c2185b, #7b1fa2);
+    color: white;
+    font-family: "Dancing Script", cursive;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(255,47,115,.4);
+    transition: .3s ease;
+}
+
+.date-validate:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.date-validate:not(:disabled):hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 0 25px rgba(255,47,115,.7);
+}
+
+@media (max-width: 900px) {
+    .date-title { font-size: 32px; }
+    .theme-grid { grid-template-columns: repeat(2, 1fr); }
+    .date-step { padding: 0px 25px 115px; }
+}
+
+/* =========================
+   POPUP ROUE DE L'AMOUR (CARTE 6)
+========================= */
+
+#wheel-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#wheel-popup.active { opacity: 1; }
+
+#wheel-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%) scale(.85);
+    width: 85vw; height: 80vh;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #fff8fc, #ffeef8, #ffdff1);
+    box-shadow: 0 0 40px rgba(255,255,255,.7), 0 0 90px rgba(255,80,150,.35);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 25px 30px 30px;
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+}
+
+#wheel-popup.active #wheel-content {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#wheel-hearts {
+    position: absolute; inset: 0;
+    pointer-events: none; overflow: hidden; z-index: 0;
+}
+
+#close-wheel {
+    position: absolute; top: 20px; right: 25px;
+    width: 50px; height: 50px; border: none; border-radius: 50%;
+    background: #91093E; color: white; font-size: 22px;
+    cursor: pointer; display: flex; justify-content: center; align-items: center;
+    z-index: 20; transition: .3s;
+}
+
+#close-wheel:hover {
+    transform: scale(1.15); box-shadow: 0 0 20px #ff4d88;
+}
+
+.wheel-title {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin: 0 0 10px;
+    font-family: "Dancing Script", cursive;
+    font-size: 38px;
+    color: #91093E;
+}
+
+#wheel-arena {
+    position: relative;
+    z-index: 2;
+    width: min(44vh, 62vw, 380px); 
+    height: min(44vh, 62vw, 380px);
+    margin: 5px auto;            
+    flex-shrink: 0;
+}
+
+#wheel-pointer {
+    position: absolute;
+    top: -14px; left: 50%;
+    width: 0; height: 0;
+    margin-left: -16px;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 26px solid #FCCA00;
+    filter: drop-shadow(0 0 8px rgba(252,202,0,.7));
+    z-index: 10;
+}
+
+#wheel {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: #fffafc;
+    box-shadow:
+        0 0 0 8px rgba(255,255,255,.8),
+        0 0 30px rgba(255,80,150,.4),
+        0 10px 40px rgba(0,0,0,.15);
+    overflow: hidden;
+    transform: rotate(0deg);
+    transition: transform 3.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wedge-cover,
+.wedge-reveal {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.wedge-cover {
+    z-index: 2;
+    transition: transform .6s cubic-bezier(.4,0,.2,1), opacity .5s ease;
+}
+
+.wedge-cover.fallen {
+    transform: translateY(70px) scale(.45) rotate(25deg);
+    opacity: 0;
+}
+
+.wedge-reveal {
+    z-index: 1;
+}
+
+.wedge-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    text-align: center;
+    font-family: "Dancing Script", cursive;
+    font-weight: 700;
+    font-size: 13.5px;
+    line-height: 1.18;
+    color: #fff;
+    text-shadow: 0 1px 5px rgba(0,0,0,.45);
+}
+
+#wheel-hub {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 52px; height: 52px;
+    margin: -26px 0 0 -26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff2f73, #c2185b);
+    box-shadow: 0 0 18px rgba(255,47,115,.7), 0 0 0 5px rgba(255,255,255,.25);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px;
+    z-index: 5;
+}
+
+#spin-btn {
+    position: relative;
+    z-index: 2;
+    margin-top: 10px;               
+    padding: 14px 42px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff1f5a, #c2185b);
+    color: white;
+    font-family: "Dancing Script", cursive;
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(255,31,90,.55);
+    transition: .3s ease;
+}
+
+#spin-btn:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 0 28px rgba(255,31,90,.85);
+}
+
+#spin-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+    .wheel-title { font-size: 28px; }
+    #wheel-arena { 
+        width: min(38vh, 70vw, 280px);   /* Ajusté pour mobiles */
+        height: min(38vh, 70vw, 280px);  /* Ajusté pour mobiles */
+        margin: 5px auto; 
+    }
+    .wedge-text { font-size: 11.5px; }
+    #spin-btn { 
+        padding: 12px 34px; 
+        font-size: 20px; 
+        margin-top: 8px;                 /* Remonte le bouton sur petit écran */
+    }
+}
+/* =========================
+   SURPRISE FINALE (apparaît une fois les 6 cartes vues)
+========================= */
+
+#surprise-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 10500;
+    opacity: 0;
+    align-items: center;
+    justify-content: center;
+    transition: opacity .4s ease;
+}
+
+#surprise-overlay.active { opacity: 1; }
+
+#surprise-box {
+    position: relative;
+    width: min(85vw, 480px);
+    padding: 50px 35px;
+    border-radius: 35px;
+    background: linear-gradient(135deg, #fff8fc, #ffeef8, #ffdff1);
+    box-shadow: 0 0 40px rgba(255,255,255,.7), 0 0 90px rgba(255,80,150,.35);
+    text-align: center;
+    transform: scale(.85);
+    transition: transform .45s cubic-bezier(.2,1.2,.3,1);
+}
+
+#surprise-overlay.active #surprise-box {
+    transform: scale(1);
+}
+
+.surprise-title {
+    margin-top: 10px;
+    font-family: "Dancing Script", cursive;
+    font-size: 36px;
+    color: #91093E;
+}
+
+/* =========================
+   FEU D'ARTIFICE FINAL (CARTE SURPRISE)
+========================= */
+
+#fireworks-show {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10600;
+    opacity: 0;
+    transition: opacity .4s ease;
+}
+
+#fireworks-show.active { opacity: 1; }
+
+#fireworks-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#end-fireworks {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 36px;
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 30px;
+    background: rgba(255,255,255,0.12);
+    color: white;
+    font-family: "Dancing Script", cursive;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: .25s;
+    z-index: 2;
+}
+
+#end-fireworks:hover {
+    background: rgba(255,255,255,0.26);
+    transform: translateX(-50%) scale(1.06);
+}
+
+@media (max-width: 900px) {
+    .surprise-title { font-size: 28px; }
+    #surprise-box { padding: 40px 25px; }
+    #end-fireworks { font-size: 18px; padding: 10px 28px; bottom: 20px; }
+}
