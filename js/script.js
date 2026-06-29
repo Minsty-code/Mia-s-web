@@ -776,19 +776,27 @@ closeFinal.addEventListener("click", closeDatePopup);
 /* (la mécanique d'esquive est partagée avec le bouton "No" de la surprise finale,
    voir createDodgingNoButton() dans la section SURPRISE FINALE plus bas) */
 
-function showNoButtonError() {
+function handleNoButtonClick() {
+    // 1. On affiche un petit message pour accuser réception de son "Non"
     noErrorMsg.classList.remove("shake");
-    void noErrorMsg.offsetWidth; // force le redémarrage de l'animation si on reclique vite
-    noErrorMsg.textContent = "❌ Error: this button doesn't exist for you 😏";
+    void noErrorMsg.offsetWidth; 
+    noErrorMsg.textContent = "Oh... dommage 💔";
     noErrorMsg.classList.add("shake");
+
+    // 2. On attend 1,5 seconde pour qu'elle lise, puis on ferme la fenêtre
+    setTimeout(() => {
+        closeDatePopup();
+    }, 1500);
 }
 
-const noButtonGame = createDodgingNoButton(noZone, btnNo, showNoButtonError, 10);
+// On ne garde que CETTE déclaration :
+const noButtonGame = createDodgingNoButton(noZone, btnNo, handleNoButtonClick, 10);
 
 function resetNoButtonGame() {
     noButtonGame.reset();
     noErrorMsg.textContent = "";
 }
+
 
 btnYes.addEventListener("click", () => goToDateStep(1));
 
