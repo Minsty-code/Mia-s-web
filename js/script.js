@@ -238,9 +238,10 @@ function updateRelationshipTimer() {
 
     const plural = (value, singular, pluralForm) => (value > 1 ? pluralForm : singular);
 
+    // ICI : Remplacement de years par months sur la deuxième ligne
     timerDisplay.innerHTML = `
         <div class="time-box">${years}<br>${plural(years, "year", "years")}</div>
-        <div class="time-box">${years}<br>${plural(years, "month", "months")}</div>
+        <div class="time-box">${months}<br>${plural(months, "month", "months")}</div>
         <div class="time-box">${days}<br>${plural(days, "day", "days")}</div>
         <div class="time-box">${hours}<br>${plural(hours, "hour", "hours")}</div>
         <div class="time-box">${minutes}<br>${plural(minutes, "minute", "minutes")}</div>
@@ -782,7 +783,7 @@ function showNoButtonError() {
     noErrorMsg.classList.add("shake");
 }
 
-const noButtonGame = createDodgingNoButton(noZone, btnNo, showNoButtonError);
+const noButtonGame = createDodgingNoButton(noZone, btnNo, showNoButtonError, 10);
 
 function resetNoButtonGame() {
     noButtonGame.reset();
@@ -1093,27 +1094,24 @@ closeWheel.addEventListener("click", () => {
 });
 
 spinBtn.addEventListener("click", spinWheel);
+
 /* ============================================================
    ESQUIVE GÉNÉRIQUE D'UN BOUTON "NO" (carte 5 + surprise finale)
 ============================================================ */
 
 /**
- * Rend un bouton "fuyant" : il esquive le curseur dès qu'on l'approche, sauf
- * une fois sur 10 où il reste immobile et cliquable (mais le clic reste refusé,
- * voir onFailedClick). Retourne { reset() } pour réinitialiser le jeu à chaque
- * ouverture de popup.
+ * Rend un bouton "fuyant". 
+ * Si stayEveryNth > 0, il s'arrête 1 fois sur N. Si stayEveryNth = 0, il n'y a JAMAIS d'arrêt.
  */
-function createDodgingNoButton(zone, button, onFailedClick) {
+function createDodgingNoButton(zone, button, onFailedClick, stayEveryNth = 0) {
     const DODGE_RADIUS = 90;
-    const DODGE_COOLDOWN_MS = 200; // laisse le saut précédent se terminer avant le suivant (évite le tremblement)
-    const STAY_EVERY_NTH = 10; // exactement 1 fois sur 10 (pas du hasard), le bouton reste immobile
+    const DODGE_COOLDOWN_MS = 200;
 
     let isNear = false;
     let approachCount = 0;
     let stayThisRound = false;
     let lastDodgeTime = 0;
 
-    // Esquive = un vrai saut loin du curseur, pas un petit tremblement sur place
     function dodge(pointerX, pointerY) {
         const zoneRect = zone.getBoundingClientRect();
         const btnRect = button.getBoundingClientRect();
@@ -1126,7 +1124,6 @@ function createDodgingNoButton(zone, button, onFailedClick) {
         let attempts = 0;
         let isFarEnough = false;
 
-        // On cherche une vraie position éloignée du curseur (pas juste une position aléatoire)
         while (!isFarEnough && attempts < 12) {
             newX = Math.random() * maxX;
             newY = Math.random() * maxY;
@@ -1151,15 +1148,17 @@ function createDodgingNoButton(zone, button, onFailedClick) {
         const isClose = distance(e.clientX, e.clientY, btnCenterX, btnCenterY) < DODGE_RADIUS;
 
         if (!isClose) {
-            isNear = false; // le curseur s'est éloigné : la prochaine approche sera une nouvelle approche
+            isNear = false; 
             return;
         }
 
         if (!isNear) {
-            // Nouvelle approche détectée
             isNear = true;
             approachCount++;
-            stayThisRound = approachCount % STAY_EVERY_NTH === 0;
+            
+            // Si stayEveryNth > 0 (Calendrier = 10), il s'arrête 1 fois sur 10.
+            // Si stayEveryNth === 0 (Surprise = 0), stayThisRound reste false (Esquive infinie !)
+            stayThisRound = (stayEveryNth > 0) ? (approachCount % stayEveryNth === 0) : false;
 
             if (!stayThisRound) {
                 dodge(e.clientX, e.clientY);
@@ -1168,15 +1167,12 @@ function createDodgingNoButton(zone, button, onFailedClick) {
             return;
         }
 
-        // Le curseur continue de suivre le bouton pendant la même approche
         if (!stayThisRound && performance.now() - lastDodgeTime > DODGE_COOLDOWN_MS) {
             dodge(e.clientX, e.clientY);
             lastDodgeTime = performance.now();
         }
-        // Si stayThisRound est vrai, le bouton ne bouge plus du tout pour cette approche : il est cliquable.
     });
 
-    // Filet de sécurité : si jamais le clic démarre alors que le bouton aurait dû esquiver, on esquive avant qu'il ne se valide
     button.addEventListener("pointerdown", e => {
         if (!stayThisRound) {
             e.preventDefault();
@@ -1185,7 +1181,6 @@ function createDodgingNoButton(zone, button, onFailedClick) {
         }
     });
 
-    // Si un clic est malgré tout détecté (esquive ratée, ou la fois où il ne bouge pas), ce n'est jamais un vrai "Non"
     button.addEventListener("click", e => {
         e.preventDefault();
         if (onFailedClick) onFailedClick();
@@ -1211,7 +1206,6 @@ function createDodgingNoButton(zone, button, onFailedClick) {
 const surpriseOverlay = document.getElementById("surprise-overlay");
 const yesSurpriseBtn = document.getElementById("yes-surprise");
 const noSurpriseBtn = document.getElementById("no-surprise");
-const noSurpriseZone = document.querySelector("#surprise-box .date-question-buttons");
 const surpriseErrorMsg = document.getElementById("surprise-no-error");
 
 const fireworksShow = document.getElementById("fireworks-show");
@@ -1237,7 +1231,6 @@ let fwLastTime = 0;
 const photoTargetSets = []; 
 
 /* ---- Préchargement des photos pour la mosaïque ---- */
-
 FIREWORK_PHOTOS.forEach(src => {
     const img = new Image();
     img.onload = () => {
@@ -1250,9 +1243,8 @@ FIREWORK_PHOTOS.forEach(src => {
     img.src = src;
 });
 
-/** Échantillonne une image en une grille de points colorés avec haute résolution. */
 function sampleImageTargets(img) {
-    const sampleSize = 260; // Qualité ~240p
+    const sampleSize = 260; 
     const ratio = img.naturalHeight / img.naturalWidth;
 
     const off = document.createElement("canvas");
@@ -1280,7 +1272,6 @@ function sampleImageTargets(img) {
     return targets;
 }
 
-/** Points d'un coeur normalisés autour du centre. */
 function createHeartTargets() {
     const targets = [];
     for (let t = 0; t < Math.PI * 2; t += 0.16) {
@@ -1291,17 +1282,27 @@ function createHeartTargets() {
     return targets;
 }
 
-/* ---- Bouton "No" qui esquive ---- */
+/* ---- Gestion des boutons de la Surprise ---- */
+yesSurpriseBtn.addEventListener("click", () => {
+    surpriseOverlay.classList.remove("active");
+    setTimeout(() => {
+        surpriseOverlay.style.display = "none";
+        startFireworksShow();
+    }, 400);
+});
 
-const surpriseNoGame = createDodgingNoButton(noSurpriseZone, noSurpriseBtn, () => {
+function showSurpriseNoButtonError() {
     surpriseErrorMsg.classList.remove("shake");
     void surpriseErrorMsg.offsetWidth; 
     surpriseErrorMsg.textContent = "❌ Error: this button doesn't exist for you 😏";
     surpriseErrorMsg.classList.add("shake");
-});
+}
+
+// Initialise l'esquive de la surprise avec un "0" pour esquive infinie (jamais d'arrêt)
+const surpriseNoZone = document.querySelector("#surprise-box .date-question-buttons");
+const surpriseNoButtonGame = createDodgingNoButton(surpriseNoZone, noSurpriseBtn, showSurpriseNoButtonError, 0);
 
 /* ---- Déclenchement : une fois les 6 cartes vues, au retour à l'accueil ---- */
-
 function markCardViewed(number) {
     viewedCards.add(number);
 }
@@ -1311,23 +1312,15 @@ function maybeOfferSurprise() {
 
     surpriseOffered = true;
     isPopupOpen = true; 
-    surpriseNoGame.reset();
     surpriseErrorMsg.textContent = "";
-    surpriseOverlay.style.display = "flex";
+    
+    if (typeof surpriseNoButtonGame !== "undefined") surpriseNoButtonGame.reset();
 
+    surpriseOverlay.style.display = "flex";
     requestAnimationFrame(() => surpriseOverlay.classList.add("active"));
 }
 
-yesSurpriseBtn.addEventListener("click", () => {
-    surpriseOverlay.classList.remove("active");
-    setTimeout(() => {
-        surpriseOverlay.style.display = "none";
-        startFireworksShow();
-    }, 400);
-});
-
 /* ---- Moteur du feu d'artifice ---- */
-
 function resizeFireworksCanvas() {
     fwCanvas.width = window.innerWidth;
     fwCanvas.height = window.innerHeight;
@@ -1381,7 +1374,7 @@ class FireworkParticle {
         this.x = x;
         this.y = y;
         this.color = color;
-        this.isPhoto = isPhoto; // Détermine si c'est un pixel de photo pur ou un néon classique
+        this.isPhoto = isPhoto; 
         this.size = 2 + Math.random() * 2;
         this.alpha = 1;
         this.mode = "burst";
@@ -1409,13 +1402,16 @@ class FireworkParticle {
         this.age += dt;
         const step = dt / 16.6;
 
-       if (this.mode === "assemble" && this.age > this.assembleDelay) {
+        if (this.mode === "assemble" && this.age > this.assembleDelay) {
             const dx = this.tx - this.x;
             const dy = this.ty - this.y;
-            this.vx += dx * 0.035; // Attraction augmentée (vitesse brute)
+            this.vx += dx * 0.035; 
             this.vy += dy * 0.035;
-            this.vx *= 0.80;  // Freinage ajusté pour se stabiliser immédiatement
+            this.vx *= 0.80;
             this.vy *= 0.80;
+        } else {
+            this.vy += 0.045; 
+            this.vx *= 0.985;
         }
 
         this.x += this.vx * step;
@@ -1435,9 +1431,8 @@ class FireworkParticle {
         fwCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         fwCtx.fillStyle = this.color;
         
-        // Si c'est une photo, on retire le flou néon pour garder les pixels nets avec leur vraie couleur
         if (this.isPhoto) {
-            fwCtx.shadowBlur = 0;
+            fwCtx.shadowBlur = 0; 
         } else {
             fwCtx.shadowColor = this.color;
             fwCtx.shadowBlur = 8;
@@ -1453,16 +1448,15 @@ function spawnClassicBurst(x, y, color, count) {
 }
 
 function explodeFirework(x, y, baseColor, isPhoto) {
-    // Cas : Feu d'artifice Photo Exclusif
     if (isPhoto && photoTargetSets.length > 0) {
         const size = Math.min(window.innerWidth, window.innerHeight) * 0.8; 
         const targets = photoTargetSets[Math.floor(Math.random() * photoTargetSets.length)];
         
         targets.forEach(target => {
             const color = target.color || baseColor;
-            const p = new FireworkParticle(x, y, color, true); // Particule en mode photo pure
-            p.size = 1.0; // Particules très fines pour le rendu pixel détaillé
-            p.setTarget(x + target.dx * size, y + target.dy * size, 2500); // Reste figée pendant 6 secondes au centre
+            const p = new FireworkParticle(x, y, color, true); 
+            p.size = 1.0; 
+            p.setTarget(x + target.dx * size, y + target.dy * size, 4500); 
             fwParticles.push(p);
         });
         return;
@@ -1481,7 +1475,6 @@ function explodeFirework(x, y, baseColor, isPhoto) {
         return;
     }
 
-    // Cas : Feu d'artifice Coeur
     const size = 260 + Math.random() * 80;
     const targets = createHeartTargets();
 
@@ -1591,7 +1584,7 @@ function stopFireworksShow() {
         isPopupOpen = false; 
 
         surpriseOffered = false;
-        viewedCards.clear(); // Force à devoir regarder les 6 cartes à nouveau pour ré-avoir la surprise
+        viewedCards.clear(); 
     }, 400);
 }
 
