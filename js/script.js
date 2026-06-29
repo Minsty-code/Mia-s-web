@@ -1219,45 +1219,40 @@ const fwCanvas = document.getElementById("fireworks-canvas");
 const fwCtx = fwCanvas.getContext("2d");
 const endFireworksBtn = document.getElementById("end-fireworks");
 
-// 📸 Ajoute ici les chemins de tes photos pour qu'elles explosent en mosaïque dans le feu d'artifice.
-// Exemple : const FIREWORK_PHOTOS = ["assets/image/fireworks/nous1.jpg", "assets/image/fireworks/nous2.jpg"];
-// Photos plutôt carrées = meilleur résultat. Si le tableau est vide, le feu d'artifice utilise
-// seulement des coeurs et des boules classiques.
 const FIREWORK_PHOTOS = ["assets/image/Nous1.jpg", "assets/image/Nous2.jpg", "assets/image/Nous3.jpg", "assets/image/Nous4.jpg", "assets/image/Nous5.jpg", "assets/image/Nous6.jpg", "assets/image/Nous7.jpg"];
-
 const FIREWORK_COLORS = ["#ff2f73", "#ff6fb5", "#c724b1", "#7b1fa2", "#FCCA00", "#00d9ff", "#ff8ad8"];
-const MAX_FIREWORK_PARTICLES = 1100; // garde-fou pour rester fluide si plusieurs explosions se chevauchent
+
+const MAX_FIREWORK_PARTICLES = 15000; // Limite très haute pour permettre les photos ultra détaillées
 
 let surpriseOffered = false;
 let fwParticles = [];
 let fwRockets = [];
 let photoFireworkActive = false;
+let nextRocketIsPhoto = false;
 let fireworksAnimId = null;
 let rocketSchedulerId = null;
+let photoWaitIntervalId = null;
 let fwLastTime = 0;
 
-const photoTargetSets = []; // un tableau de points {dx, dy, color} par photo chargée (offsets normalisés)
+const photoTargetSets = []; 
 
 /* ---- Préchargement des photos pour la mosaïque ---- */
 
 FIREWORK_PHOTOS.forEach(src => {
     const img = new Image();
-
     img.onload = () => {
-    const targets = sampleImageTargets(img);
-    if (targets.length) {
-        photoTargetSets.push(targets);
-    }
-};
+        const targets = sampleImageTargets(img);
+        if (targets.length) {
+            photoTargetSets.push(targets);
+        }
+    };
+    img.onerror = () => {};
+    img.src = src;
+});
 
-img.onerror = () => {};
-
-img.src = src;
-    });
-
-/** Échantillonne une image en une grille de points colorés (offsets normalisés autour du centre). */
+/** Échantillonne une image en une grille de points colorés avec haute résolution. */
 function sampleImageTargets(img) {
-    const sampleSize = 70; // résolution de la mosaïque : plus petit = plus fluide, plus grand = plus détaillé
+    const sampleSize = 200; // Qualité ~240p
     const ratio = img.naturalHeight / img.naturalWidth;
 
     const off = document.createElement("canvas");
@@ -1273,7 +1268,7 @@ function sampleImageTargets(img) {
     for (let y = 0; y < off.height; y += 2) {
         for (let x = 0; x < off.width; x += 2) {
             const i = (y * off.width + x) * 4;
-            if (data[i + 3] < 40) continue; // pixel transparent : on ignore
+            if (data[i + 3] < 40) continue; 
 
             targets.push({
                 dx: (x / off.width) - 0.5,
@@ -1282,29 +1277,25 @@ function sampleImageTargets(img) {
             });
         }
     }
-
     return targets;
 }
 
-/** Points d'un coeur (même courbe paramétrique que la carte 3), normalisés autour du centre. */
+/** Points d'un coeur normalisés autour du centre. */
 function createHeartTargets() {
     const targets = [];
-
     for (let t = 0; t < Math.PI * 2; t += 0.16) {
         const x = 16 * Math.pow(Math.sin(t), 3);
         const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-
         targets.push({ dx: x / 32, dy: y / 32, color: null });
     }
-
     return targets;
 }
 
-/* ---- Bouton "No" qui esquive, comme à l'étape 0 de la demande de rendez-vous ---- */
+/* ---- Bouton "No" qui esquive ---- */
 
 const surpriseNoGame = createDodgingNoButton(noSurpriseZone, noSurpriseBtn, () => {
     surpriseErrorMsg.classList.remove("shake");
-    void surpriseErrorMsg.offsetWidth; // force le redémarrage de l'animation si on reclique vite
+    void surpriseErrorMsg.offsetWidth; 
     surpriseErrorMsg.textContent = "❌ Error: this button doesn't exist for you 😏";
     surpriseErrorMsg.classList.add("shake");
 });
@@ -1319,7 +1310,7 @@ function maybeOfferSurprise() {
     if (surpriseOffered || viewedCards.size < 6) return;
 
     surpriseOffered = true;
-    isPopupOpen = true; // gèle les coeurs de fond, comme pour les autres popups
+    isPopupOpen = true; 
     surpriseNoGame.reset();
     surpriseErrorMsg.textContent = "";
     surpriseOverlay.style.display = "flex";
@@ -1329,7 +1320,6 @@ function maybeOfferSurprise() {
 
 yesSurpriseBtn.addEventListener("click", () => {
     surpriseOverlay.classList.remove("active");
-
     setTimeout(() => {
         surpriseOverlay.style.display = "none";
         startFireworksShow();
@@ -1349,9 +1339,8 @@ window.addEventListener("resize", () => {
     if (fireworksShow.classList.contains("active")) resizeFireworksCanvas();
 });
 
-/** Une fusée qui monte du bas de l'écran jusqu'à son point d'explosion. */
 class FireworkRocket {
-    constructor(targetX, targetY) {
+    constructor(targetX, targetY, isPhoto = false) {
         this.x = targetX;
         this.startY = fwCanvas.height;
         this.y = this.startY;
@@ -1361,6 +1350,7 @@ class FireworkRocket {
         this.duration = 700 + Math.random() * 400;
         this.color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
         this.done = false;
+        this.isPhoto = isPhoto;
     }
 
     update(dt) {
@@ -1372,7 +1362,7 @@ class FireworkRocket {
 
         if (t >= 1 && !this.done) {
             this.done = true;
-            explodeFirework(this.x, this.y, this.color);
+            explodeFirework(this.x, this.y, this.color, this.isPhoto);
         }
     }
 
@@ -1386,7 +1376,6 @@ class FireworkRocket {
     }
 }
 
-/** Une étincelle d'explosion : part dans tous les sens, puis peut s'assembler vers une cible (coeur / photo). */
 class FireworkParticle {
     constructor(x, y, color) {
         this.x = x;
@@ -1408,7 +1397,6 @@ class FireworkParticle {
         this.life = 1100 + Math.random() * 500;
     }
 
-    /** Donne une cible à l'étincelle : après un court délai, elle s'y assemble et y reste un moment (mosaïque). */
     setTarget(tx, ty, holdMs) {
         this.tx = tx;
         this.ty = ty;
@@ -1428,7 +1416,7 @@ class FireworkParticle {
             this.vx *= 0.86;
             this.vy *= 0.86;
         } else {
-            this.vy += 0.045; // gravité
+            this.vy += 0.045; 
             this.vx *= 0.985;
         }
 
@@ -1454,71 +1442,85 @@ class FireworkParticle {
     }
 }
 
-/** Explosion "boule classique" : pas de forme, juste des étincelles qui partent dans tous les sens. */
 function spawnClassicBurst(x, y, color, count) {
     for (let i = 0; i < count; i++) {
         fwParticles.push(new FireworkParticle(x, y, color));
     }
 }
 
-/** Choisit le type d'explosion (boule / coeur / photo) et prépare les étincelles correspondantes. */
-function explodeFirework(x, y, baseColor) {
-    // Garde-fou perf : trop de particules déjà à l'écran → on retombe sur une boule simple, plus légère
-    if (fwParticles.length > MAX_FIREWORK_PARTICLES) {
-        spawnClassicBurst(x, y, baseColor, 35);
+function explodeFirework(x, y, baseColor, isPhoto) {
+    // Cas : Feu d'artifice Photo Exclusif
+    if (isPhoto && photoTargetSets.length > 0) {
+        const size = Math.min(window.innerWidth, window.innerHeight) * 0.8; 
+        const targets = photoTargetSets[Math.floor(Math.random() * photoTargetSets.length)];
+        
+        targets.forEach(target => {
+            const color = target.color || baseColor;
+            const p = new FireworkParticle(x, y, color);
+            p.size = 1.3; // Particules plus fines pour plus de détails
+            p.setTarget(x + target.dx * size, y + target.dy * size, 3800); // Reste figée plus longtemps
+            fwParticles.push(p);
+        });
         return;
     }
 
-    const hasPhotos = photoTargetSets.length > 0;
-        if (photoFireworkActive) {
-    spawnClassicBurst(x, y, baseColor, 45);
-    return;
+    // Garde-fou de performance pour les feux normaux
+    if (fwParticles.length > 2000) {
+        spawnClassicBurst(x, y, baseColor, 30);
+        return;
     }
-    
+
     const roll = Math.random();
-
-    let mode = "burst";
-
-        if (hasPhotos && roll < 0.3) {
-    mode = "photo";
-    photoFireworkActive = true;
-        } else if (roll < (hasPhotos ? 0.65 : 0.5)) {
-    mode = "heart";
-    }
+    const mode = roll < 0.5 ? "heart" : "burst";
 
     if (mode === "burst") {
         spawnClassicBurst(x, y, baseColor, 40 + Math.floor(Math.random() * 20));        
         return;
     }
 
-        const size = 260 + Math.random() * 80;
-        const targets = mode === "photo"
-        ? photoTargetSets[Math.floor(Math.random() * photoTargetSets.length)]
-        : createHeartTargets();
+    // Cas : Feu d'artifice Coeur
+    const size = 260 + Math.random() * 80;
+    const targets = createHeartTargets();
 
-            if (mode === "photo") {
-                photoFireworkActive = true;
-            }
-
-        const limitedTargets = targets;
-        limitedTargets.forEach(target => {
-        const color = target.color || baseColor;
-        const p = new FireworkParticle(x, y, color);
-        p.size = mode === "photo" ? 2.4 : 3;
-        p.setTarget(x + target.dx * size, y + target.dy * size, 3500);
+    targets.forEach(target => {
+        const p = new FireworkParticle(x, y, baseColor);
+        p.size = 3;
+        p.setTarget(x + target.dx * size, y + target.dy * size, 2000);
         fwParticles.push(p);
     });
 }
 
 function launchRocket() {
-    if (photoFireworkActive) return;
+    if (photoFireworkActive || nextRocketIsPhoto) return; 
+
     const targetX = window.innerWidth * (0.12 + Math.random() * 0.76);
     const targetY = window.innerHeight * (0.16 + Math.random() * 0.34);
 
-    fwRockets.push(new FireworkRocket(targetX, targetY));
+    fwRockets.push(new FireworkRocket(targetX, targetY, false));
 }
 
 function scheduleNextRocket() {
+    if (photoFireworkActive || nextRocketIsPhoto) return;
+
+    // 15% de chance de lancer une photo détaillée et exclusive
+    if (photoTargetSets.length > 0 && Math.random() < 0.15) {
+        nextRocketIsPhoto = true;
+        
+        // On attend que le ciel soit totalement vide
+        photoWaitIntervalId = setInterval(() => {
+            if (fwParticles.length === 0 && fwRockets.length === 0) {
+                clearInterval(photoWaitIntervalId);
+                photoFireworkActive = true;
+                
+                // Lancement de l'unique fusée photo parfaitement centrée
+                const targetX = window.innerWidth / 2;
+                const targetY = window.innerHeight * 0.35;
+                fwRockets.push(new FireworkRocket(targetX, targetY, true));
+            }
+        }, 150);
+        return;
+    }
+
     const delay = 550 + Math.random() * 700;
     rocketSchedulerId = setTimeout(() => {
         launchRocket();
@@ -1530,7 +1532,6 @@ function animateFireworks(time) {
     const dt = fwLastTime ? Math.min(time - fwLastTime, 40) : 16;
     fwLastTime = time;
 
-    // Traînée légère façon ciel nocturne (le fond ne se réefface jamais complètement d'un coup)
     fwCtx.globalAlpha = 1;
     fwCtx.globalCompositeOperation = "source-over";
     fwCtx.fillStyle = "rgba(8, 0, 20, 0.28)";
@@ -1544,9 +1545,12 @@ function animateFireworks(time) {
     fwParticles.forEach(p => { p.update(dt); p.draw(); });
     fwParticles = fwParticles.filter(p => !p.isDead());
 
-        if (photoFireworkActive && fwParticles.length === 0) {
-    photoFireworkActive = false;
-}
+    // Reprise du show normal une fois la photo évaporée
+    if (photoFireworkActive && fwParticles.length === 0 && fwRockets.length === 0) {
+        photoFireworkActive = false;
+        nextRocketIsPhoto = false;
+        scheduleNextRocket();
+    }
 
     fwCtx.globalAlpha = 1;
     fireworksAnimId = requestAnimationFrame(animateFireworks);
@@ -1557,13 +1561,14 @@ function startFireworksShow() {
     fwLastTime = 0;
     fwParticles = [];
     fwRockets = [];
+    nextRocketIsPhoto = false;
+    photoFireworkActive = false;
 
     resizeFireworksCanvas();
 
     fireworksShow.style.display = "block";
     requestAnimationFrame(() => fireworksShow.classList.add("active"));
 
-    // Petite salve immédiate pour démarrer fort, comme un vrai spectacle
     for (let i = 0; i < 3; i++) {
         setTimeout(launchRocket, i * 300);
     }
@@ -1574,6 +1579,7 @@ function startFireworksShow() {
 
 function stopFireworksShow() {
     clearTimeout(rocketSchedulerId);
+    clearInterval(photoWaitIntervalId);
     cancelAnimationFrame(fireworksAnimId);
 
     fireworksShow.classList.remove("active");
@@ -1583,10 +1589,8 @@ function stopFireworksShow() {
         fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
         fwParticles = [];
         fwRockets = [];
-        isPopupOpen = false; // retour à la page normale, les coeurs de fond reprennent
+        isPopupOpen = false; 
 
-        // Réarme la surprise : si on revisite une carte et qu'on revient à l'accueil,
-        // la question / le feu d'artifice pourront réapparaître.
         surpriseOffered = false;
     }, 400);
 }
