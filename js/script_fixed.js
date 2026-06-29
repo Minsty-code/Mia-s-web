@@ -1,4 +1,4 @@
-const FORMSPREE_ENDPOINT = ""; //https://formspree.io/f/xnjkdeyb
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xnjkdeyb"; //https://formspree.io/f/xnjkdeyb
 const DATE_RESPONSES_STORAGE_KEY = "mia_date_responses";
 
 const HEART_MESSAGES = [
