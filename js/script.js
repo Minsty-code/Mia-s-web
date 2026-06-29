@@ -26,7 +26,7 @@ I’m writing you this letter to tell you just how much I love you.
 
 You are an incredible person; I truly admire you so much.
 I know I’m not perfect, but I hope this webpage makes you happy. It took me a while to create it.
-I love you, my love—don't ever change. I promise we’re going to get married and have children.
+I love you, my love don't ever change. I promise we’re going to get married and have children.
 
 I love you madly,
 Paul
