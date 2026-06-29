@@ -1243,26 +1243,16 @@ FIREWORK_PHOTOS.forEach(src => {
     const img = new Image();
 
     img.onload = () => {
-        console.log("Image chargée :", src);
-        try {
-            const targets = sampleImageTargets(img);
-            if (targets.length) photoTargetSets.push(targets);
-        } catch (err) {
-            // "Tainted canvas" : arrive si la page est ouverte en double-clic (file://) ET que l'image
-            // a un attribut crossOrigin, ou si l'image vient d'un autre domaine. Sert la page via un
-            // petit serveur local (ex: VS Code "Live Server", ou `python3 -m http.server`) si ça persiste.
-            console.warn("Impossible de lire les pixels de la photo (canvas \"tainted\") :", src, err);
-        }
-    };
-
-    img.onerror = () => {};
-
-img.onload = () => {
     const targets = sampleImageTargets(img);
-    photoTargetSets.push(targets);
+    if (targets.length) {
+        photoTargetSets.push(targets);
+    }
 };
-    img.src = src;
-});
+
+img.onerror = () => {};
+
+img.src = src;
+    });
 
 /** Échantillonne une image en une grille de points colorés (offsets normalisés autour du centre). */
 function sampleImageTargets(img) {
