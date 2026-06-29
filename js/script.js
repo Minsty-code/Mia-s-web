@@ -20,7 +20,7 @@ const PLAYLIST = [
     { title: "Taylor Swift - Love Story", file: "assets/music/Taylor Swift - Love Story .mp3" }
 ];
 
-const LETTER_TEXT = `Hey mon chaton ❤️‍🔥,
+const LETTER_TEXT = `Hey my kitten ❤️‍🔥,
 
 I’m writing you this letter to tell you just how much I love you.
 
@@ -34,17 +34,17 @@ Paul
 Mimi, bye-bye 😘`;
 
 const MOIS_FR = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
 ];
 
 const WHEEL_SEGMENTS = [
-    { decoy: "#ff2f73", reveal: "#FF8AD8", compliment: "Tu es magnifique" },
-    { decoy: "#FCCA00", reveal: "#FF4365", compliment: "Ton sourire me fait sourire" },
-    { decoy: "#00d9ff", reveal: "#E0115F", compliment: "Tu es ma meilleure amie" },
-    { decoy: "#c400ff", reveal: "#FF6FB5", compliment: "Tu es la plus belle du monde" },
-    { decoy: "#ff5da2", reveal: "#C724B1", compliment: "Tu es à craquer" },
-    { decoy: "#7b1fa2", reveal: "#FF3D81", compliment: "Je t'aime un peu plus chaque jour" }
+    { decoy: "#ff2f73", reveal: "#FF8AD8", compliment: "You look stunning" },
+    { decoy: "#FCCA00", reveal: "#FF4365", compliment: "Your smile makes me smile" },
+    { decoy: "#00d9ff", reveal: "#E0115F", compliment: "You are my best friend" },
+    { decoy: "#c400ff", reveal: "#FF6FB5", compliment: "You are the most beautiful person in the world" },
+    { decoy: "#ff5da2", reveal: "#C724B1", compliment: "You are irresistible" },
+    { decoy: "#7b1fa2", reveal: "#FF3D81", compliment: "I love you a little more every day" }
 ];
 
 const viewedCards = new Set();
@@ -239,12 +239,12 @@ function updateRelationshipTimer() {
     const plural = (value, singular, pluralForm) => (value > 1 ? pluralForm : singular);
 
     timerDisplay.innerHTML = `
-        <div class="time-box">${years}<br>${plural(years, "année", "années")}</div>
-        <div class="time-box">${months}<br>mois</div>
-        <div class="time-box">${days}<br>${plural(days, "jour", "jours")}</div>
-        <div class="time-box">${hours}<br>${plural(hours, "heure", "heures")}</div>
+        <div class="time-box">${years}<br>${plural(years, "year", "years")}</div>
+        <div class="time-box">${years}<br>${plural(years, "month", "months")}</div>
+        <div class="time-box">${days}<br>${plural(days, "day", "days")}</div>
+        <div class="time-box">${hours}<br>${plural(hours, "hour", "hours")}</div>
         <div class="time-box">${minutes}<br>${plural(minutes, "minute", "minutes")}</div>
-        <div class="time-box">${seconds}<br>${plural(seconds, "seconde", "secondes")}</div>
+        <div class="time-box">${seconds}<br>${plural(seconds, "second", "seconds")}</div>
     `;
 }
 
@@ -1462,7 +1462,7 @@ function explodeFirework(x, y, baseColor, isPhoto) {
             const color = target.color || baseColor;
             const p = new FireworkParticle(x, y, color, true); // Particule en mode photo pure
             p.size = 1.0; // Particules très fines pour le rendu pixel détaillé
-            p.setTarget(x + target.dx * size, y + target.dy * size, 4500); // Reste figée pendant 6 secondes au centre
+            p.setTarget(x + target.dx * size, y + target.dy * size, 2500); // Reste figée pendant 6 secondes au centre
             fwParticles.push(p);
         });
         return;
