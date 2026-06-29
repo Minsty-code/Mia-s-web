@@ -1222,7 +1222,7 @@ const endFireworksBtn = document.getElementById("end-fireworks");
 const FIREWORK_PHOTOS = ["assets/image/Nous1.jpg", "assets/image/Nous2.jpg", "assets/image/Nous3.jpg", "assets/image/Nous4.jpg", "assets/image/Nous5.jpg", "assets/image/Nous6.jpg", "assets/image/Nous7.jpg"];
 const FIREWORK_COLORS = ["#ff2f73", "#ff6fb5", "#c724b1", "#7b1fa2", "#FCCA00", "#00d9ff", "#ff8ad8"];
 
-const MAX_FIREWORK_PARTICLES = 15000; // Limite très haute pour permettre les photos ultra détaillées
+const MAX_FIREWORK_PARTICLES = 15000; 
 
 let surpriseOffered = false;
 let fwParticles = [];
@@ -1377,10 +1377,11 @@ class FireworkRocket {
 }
 
 class FireworkParticle {
-    constructor(x, y, color) {
+    constructor(x, y, color, isPhoto = false) {
         this.x = x;
         this.y = y;
         this.color = color;
+        this.isPhoto = isPhoto; // Détermine si c'est un pixel de photo pur ou un néon classique
         this.size = 2 + Math.random() * 2;
         this.alpha = 1;
         this.mode = "burst";
@@ -1436,15 +1437,21 @@ class FireworkParticle {
         fwCtx.beginPath();
         fwCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         fwCtx.fillStyle = this.color;
-        fwCtx.shadowColor = this.color;
-        fwCtx.shadowBlur = 8;
+        
+        // Si c'est une photo, on retire le flou néon pour garder les pixels nets avec leur vraie couleur
+        if (this.isPhoto) {
+            fwCtx.shadowBlur = 0;
+        } else {
+            fwCtx.shadowColor = this.color;
+            fwCtx.shadowBlur = 8;
+        }
         fwCtx.fill();
     }
 }
 
 function spawnClassicBurst(x, y, color, count) {
     for (let i = 0; i < count; i++) {
-        fwParticles.push(new FireworkParticle(x, y, color));
+        fwParticles.push(new FireworkParticle(x, y, color, false));
     }
 }
 
@@ -1456,15 +1463,14 @@ function explodeFirework(x, y, baseColor, isPhoto) {
         
         targets.forEach(target => {
             const color = target.color || baseColor;
-            const p = new FireworkParticle(x, y, color);
-            p.size = 1.3; // Particules plus fines pour plus de détails
-            p.setTarget(x + target.dx * size, y + target.dy * size, 3800); // Reste figée plus longtemps
+            const p = new FireworkParticle(x, y, color, true); // Particule en mode photo pure
+            p.size = 1.3; // Particules très fines pour le rendu pixel détaillé
+            p.setTarget(x + target.dx * size, y + target.dy * size, 6000); // Reste figée pendant 6 secondes au centre
             fwParticles.push(p);
         });
         return;
     }
 
-    // Garde-fou de performance pour les feux normaux
     if (fwParticles.length > 2000) {
         spawnClassicBurst(x, y, baseColor, 30);
         return;
@@ -1483,7 +1489,7 @@ function explodeFirework(x, y, baseColor, isPhoto) {
     const targets = createHeartTargets();
 
     targets.forEach(target => {
-        const p = new FireworkParticle(x, y, baseColor);
+        const p = new FireworkParticle(x, y, baseColor, false);
         p.size = 3;
         p.setTarget(x + target.dx * size, y + target.dy * size, 2000);
         fwParticles.push(p);
@@ -1502,17 +1508,14 @@ function launchRocket() {
 function scheduleNextRocket() {
     if (photoFireworkActive || nextRocketIsPhoto) return;
 
-    // 15% de chance de lancer une photo détaillée et exclusive
     if (photoTargetSets.length > 0 && Math.random() < 0.15) {
         nextRocketIsPhoto = true;
         
-        // On attend que le ciel soit totalement vide
         photoWaitIntervalId = setInterval(() => {
             if (fwParticles.length === 0 && fwRockets.length === 0) {
                 clearInterval(photoWaitIntervalId);
                 photoFireworkActive = true;
                 
-                // Lancement de l'unique fusée photo parfaitement centrée
                 const targetX = window.innerWidth / 2;
                 const targetY = window.innerHeight * 0.35;
                 fwRockets.push(new FireworkRocket(targetX, targetY, true));
@@ -1545,7 +1548,6 @@ function animateFireworks(time) {
     fwParticles.forEach(p => { p.update(dt); p.draw(); });
     fwParticles = fwParticles.filter(p => !p.isDead());
 
-    // Reprise du show normal une fois la photo évaporée
     if (photoFireworkActive && fwParticles.length === 0 && fwRockets.length === 0) {
         photoFireworkActive = false;
         nextRocketIsPhoto = false;
@@ -1592,6 +1594,7 @@ function stopFireworksShow() {
         isPopupOpen = false; 
 
         surpriseOffered = false;
+        viewedCards.clear(); // Force à devoir regarder les 6 cartes à nouveau pour ré-avoir la surprise
     }, 400);
 }
 
