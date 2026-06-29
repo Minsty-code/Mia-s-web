@@ -1252,7 +1252,7 @@ FIREWORK_PHOTOS.forEach(src => {
 
 /** Échantillonne une image en une grille de points colorés avec haute résolution. */
 function sampleImageTargets(img) {
-    const sampleSize = 200; // Qualité ~240p
+    const sampleSize = 260; // Qualité ~240p
     const ratio = img.naturalHeight / img.naturalWidth;
 
     const off = document.createElement("canvas");
@@ -1409,16 +1409,13 @@ class FireworkParticle {
         this.age += dt;
         const step = dt / 16.6;
 
-        if (this.mode === "assemble" && this.age > this.assembleDelay) {
+       if (this.mode === "assemble" && this.age > this.assembleDelay) {
             const dx = this.tx - this.x;
             const dy = this.ty - this.y;
-            this.vx += dx * 0.012;
-            this.vy += dy * 0.012;
-            this.vx *= 0.86;
-            this.vy *= 0.86;
-        } else {
-            this.vy += 0.045; 
-            this.vx *= 0.985;
+            this.vx += dx * 0.035; // Attraction augmentée (vitesse brute)
+            this.vy += dy * 0.035;
+            this.vx *= 0.80;  // Freinage ajusté pour se stabiliser immédiatement
+            this.vy *= 0.80;
         }
 
         this.x += this.vx * step;
@@ -1464,8 +1461,8 @@ function explodeFirework(x, y, baseColor, isPhoto) {
         targets.forEach(target => {
             const color = target.color || baseColor;
             const p = new FireworkParticle(x, y, color, true); // Particule en mode photo pure
-            p.size = 1.3; // Particules très fines pour le rendu pixel détaillé
-            p.setTarget(x + target.dx * size, y + target.dy * size, 6000); // Reste figée pendant 6 secondes au centre
+            p.size = 1.0; // Particules très fines pour le rendu pixel détaillé
+            p.setTarget(x + target.dx * size, y + target.dy * size, 4500); // Reste figée pendant 6 secondes au centre
             fwParticles.push(p);
         });
         return;
