@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Site pour Mia ❤️‍🔥🫀💍</title>
+
+    <link rel="icon" type="image/png" href="assets/image/Mia.png" style=" border-radius: 50px">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <div class="overlay"></div>
+
+    <svg class="logo logo-left"
+        viewBox="0 0 300 300"
+        fill="none"
+        stroke="#110047"
+        stroke-width="10"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+
+        <line x1="80" y1="95" x2="80" y2="250" />
+        <line x1="220" y1="95" x2="220" y2="250" />
+        <line x1="80" y1="95" x2="220" y2="95" />
+        <line x1="20" y1="20" x2="150" y2="180" />
+        <line x1="280" y1="20" x2="150" y2="180" />
+        <line x1="150" y1="20" x2="150" y2="250" />
+
+    </svg>
+
+    <svg class="logo logo-right"
+        viewBox="0 0 300 300"
+        fill="none"
+        stroke="#110047"
+        stroke-width="10"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+
+        <line x1="80" y1="95" x2="80" y2="250" />
+        <line x1="220" y1="95" x2="220" y2="250" />
+        <line x1="80" y1="95" x2="220" y2="95" />
+        <line x1="20" y1="20" x2="150" y2="180" />
+        <line x1="280" y1="20" x2="150" y2="180" />
+        <line x1="150" y1="20" x2="150" y2="250" />
+
+    </svg>
+
+    <main>
+
+        <div class="main-box"></div>
+
+        <section class="welcome-text">
+
+            <h1 class="apparition">
+                Hi Mia
+            </h1>
+
+            <h2 class="secondeapparition">
+                Choose a card and enjoy the moment
+            </h2>
+
+        </section>
+
+        <div class="box box-1">
+            <img class="card-image" src="assets/image/time.jpeg" alt="Time">
+        </div>
+
+        <div class="box box-2">
+            <img class="card-image" src="assets/image/flowers.jpeg" alt="Flowers">
+        </div>
+
+        <div class="box box-3">
+            <img class="card-image" src="assets/image/heart.jpeg" alt="Heart">
+        </div>
+
+        <div class="box box-4">
+            <img class="card-image" src="assets/image/letter.jpeg" alt="Letter">
+        </div>
+
+        <div class="box box-5">
+            <img class="card-image" src="assets/image/calendar.jpeg" alt="Date">
+        </div>
+
+        <div class="box box-6">
+            <img class="card-image" src="assets/image/roue.jpeg" alt="Roue">
+        </div>
+
+        <div id="hearts-container"></div>
+
+    </main>
+
+    <div class="menu-container">
+
+        <button id="heart-btn">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#F089BB" stroke="#690133" stroke-width="0.9">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </button>
+
+        <div id="menu">
+            <button id="prev-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+
+            <button id="music-btn">
+            </button>
+
+            <button id="next-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <audio id="music"></audio>
+
+    <div id="timer-popup">
+        <div id="timer-content">
+            <button id="close-timer">✕</button>
+            <div id="timer-hearts"></div>
+            <h2>Depuis le 08/12/2025</h2>
+            <div id="relationship-timer">Chargement...</div>
+        </div>
+    </div>
+
+    <div id="flowers-popup">
+        <div id="flowers-content">
+            <button id="close-flowers">✕</button>
+            <div id="flowers-scene">
+                <div id="flowers-stars"></div>
+                <div id="flowers-ground-glow"></div>
+                <div id="flowers-hearts"></div>
+
+                <div id="flowers">
+                    <div class="flower" id="f1" style="height:170px;">
+                        <div class="stem"></div>
+                        <div class="leaf-anchor left" style="bottom:55px;"><div class="leaf" style="transform:rotate(-18deg);"></div></div>
+                        <div class="bloom-pos" style="top:0;">
+                            <div class="bloom theme-pink" id="bloom1"></div>
+                        </div>
+                    </div>
+
+                    <div class="flower" id="f2" style="height:215px;">
+                        <div class="stem"></div>
+                        <div class="leaf-anchor right" style="bottom:80px;"><div class="leaf" style="transform:rotate(18deg);"></div></div>
+                        <div class="leaf-anchor left" style="bottom:140px;"><div class="leaf" style="transform:rotate(-14deg);"></div></div>
+                        <div class="bloom-pos" style="top:0;">
+                            <div class="bloom theme-cyan" id="bloom2"></div>
+                        </div>
+                    </div>
+
+                    <div class="flower" id="f3" style="height:188px;">
+                        <div class="stem"></div>
+                        <div class="leaf-anchor right" style="bottom:60px;"><div class="leaf" style="transform:rotate(20deg);"></div></div>
+                        <div class="bloom-pos" style="top:0;">
+                            <div class="bloom theme-gold" id="bloom3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="flowers-cursor-glow"></div>
+                <div id="flowers-hint">Move your mouse ✨</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="particles-popup">
+        <div id="particles-content">
+            <div id="particles-cursor-glow"></div> 
+            <button id="close-particles">✕</button>
+            <div id="particles-hint">Tap anywhere 😻</div>
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
+
+    <div id="letter-popup">
+        <div id="letter-content">
+            <button id="close-letter">✕</button>
+            
+            <div id="desk-scene">
+                <div id="letter-hearts"></div>
+                
+                <div class="envelope-wrapper">
+                    <div class="envelope-back"></div>
+                    
+                    <div class="paper">
+                        <div id="typewriter-text"></div>
+                    </div>
+                    
+                    <div class="envelope-front"></div>
+                    <div class="flap"></div>
+                    <div class="heart-sticker">❤️</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================
+         POPUP DEMANDE DE RENDEZ-VOUS (CARTE 5)
+    =========================== -->
+    <div id="date-popup">
+        <div id="date-content">
+
+            <button id="close-date">✕</button>
+            <div id="date-hearts"></div>
+
+            <!-- Étape 0 : la question -->
+            <section class="date-step active" data-step="0">
+                <h2 class="date-title">Do you want to date me?</h2>
+
+                <div class="date-question-buttons">
+                    <button type="button" id="btn-yes" class="date-btn date-btn-yes">Yes</button>
+                    <button type="button" id="btn-no" class="date-btn date-btn-no">No</button>
+                </div>
+
+                <p id="no-error-msg" class="date-error-msg"></p>
+            </section>
+
+            <!-- Étape 1 : le thème de la sortie -->
+            <section class="date-step" data-step="1">
+                <h2 class="date-title">Choisis une sortie</h2>
+
+                <div class="theme-grid">
+                    <button type="button" class="theme-card" data-theme="Shopping">
+                        <span class="theme-emoji">🛍️</span>Shopping
+                    </button>
+                    <button type="button" class="theme-card" data-theme="Cinéma">
+                        <span class="theme-emoji">🎬</span>Cinéma
+                    </button>
+                    <button type="button" class="theme-card" data-theme="Manger">
+                        <span class="theme-emoji">🍽️</span>Manger
+                    </button>
+                    <button type="button" class="theme-card" data-theme="Balade">
+                        <span class="theme-emoji">🌇</span>Balade
+                    </button>
+                    <button type="button" class="theme-card" data-theme="Sexe">
+                        <span class="theme-emoji">🫦</span>Sexe
+                    </button>
+                    <button type="button" class="theme-card" data-theme="Autre">
+                        <span class="theme-emoji">✨</span>Autre
+                    </button>
+                </div>
+
+                <button type="button" id="validate-theme" class="date-validate" disabled>Valider →</button>
+            </section>
+
+            <!-- Étape 2 : le lieu -->
+            <section class="date-step" data-step="2">
+                <h2 class="date-title">Où veux-tu qu'on se retrouve ?</h2>
+
+                <input type="text" id="location-input" class="date-input" placeholder="Adresse ou lieu...">
+
+                <button type="button" id="validate-location" class="date-validate" disabled>Valider →</button>
+            </section>
+
+            <!-- Étape 3 : la date -->
+            <section class="date-step" data-step="3">
+                <h2 class="date-title">Choisis la date</h2>
+
+                <div class="mini-calendar">
+                    <div class="calendar-header">
+                        <button type="button" id="cal-prev" class="cal-nav">‹</button>
+                        <span id="cal-month-label"></span>
+                        <button type="button" id="cal-next" class="cal-nav">›</button>
+                    </div>
+
+                    <div class="calendar-weekdays">
+                        <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                    </div>
+
+                    <div id="calendar-grid" class="calendar-grid"></div>
+                </div>
+
+                <button type="button" id="validate-calendar" class="date-validate" disabled>Valider →</button>
+            </section>
+
+            <!-- Étape 4 : message final -->
+            <section class="date-step" data-step="4">
+                <div class="final-message">
+                    <p class="final-emoji">💌❤️😘</p>
+                    <h2 class="date-title">Merci mon amour</h2>
+                    <p id="final-summary" class="final-summary"></p>
+                    <p class="final-kiss">Bisous, je t'aime à la folie.</p>
+                </div>
+
+                <button type="button" id="close-final" class="date-validate">Fermer</button>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ==========================
+         POPUP ROUE DE L'AMOUR (CARTE 6)
+    =========================== -->
+    <div id="wheel-popup">
+        <div id="wheel-content">
+
+            <button id="close-wheel">✕</button>
+            <div id="wheel-hearts"></div>
+
+            <h2 class="wheel-title">Spin the wheel of love</h2>
+
+            <div id="wheel-arena">
+                <div id="wheel-pointer"></div>
+                <div id="wheel"></div>
+                <div id="wheel-hub">💍</div>
+            </div>
+
+            <button type="button" id="spin-btn">Spin ❤‍🔥</button>
+
+        </div>
+    </div>
+
+    <!-- ==========================
+         SURPRISE FINALE (apparaît une fois les 6 cartes vues)
+    =========================== -->
+    <div id="surprise-overlay">
+        <div id="surprise-box">
+            <h2 class="surprise-title">Do you want to see a surprise?</h2>
+
+            <div class="date-question-buttons">
+                <button type="button" id="yes-surprise" class="date-btn date-btn-yes">Yes</button>
+                <button type="button" id="no-surprise" class="date-btn date-btn-no">No</button>
+            </div>
+
+            <p id="surprise-no-error" class="date-error-msg"></p>
+        </div>
+    </div>
+
+    <div id="fireworks-show">
+        <canvas id="fireworks-canvas"></canvas>
+        <button type="button" id="end-fireworks">End</button>
+    </div>
+
+    <script src="js/script.js"></script>
+
+</body>
+</html>
