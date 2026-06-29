@@ -1255,19 +1255,11 @@ FIREWORK_PHOTOS.forEach(src => {
         }
     };
 
-    img.onerror = () => {
-    alert("Erreur : " + src);
-};
+    img.onerror = () => {};
 
 img.onload = () => {
-    alert("Image chargée : " + src);
-    try {
-        const targets = sampleImageTargets(img);
-        alert("Nombre de points : " + targets.length);
-        photoTargetSets.push(targets);
-    } catch (err) {
-        console.error(err);
-    }
+    const targets = sampleImageTargets(img);
+    photoTargetSets.push(targets);
 };
     img.src = src;
 });
