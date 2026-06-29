@@ -1226,7 +1226,7 @@ const endFireworksBtn = document.getElementById("end-fireworks");
 const FIREWORK_PHOTOS = ["assets/image/Nous1.jpg", "assets/image/Nous2.jpg", "assets/image/Nous3.jpg", "assets/image/Nous4.jpg", "assets/image/Nous5.jpg", "assets/image/Nous6.jpg", "assets/image/Nous7.jpg"];
 
 const FIREWORK_COLORS = ["#ff2f73", "#ff6fb5", "#c724b1", "#7b1fa2", "#FCCA00", "#00d9ff", "#ff8ad8"];
-const MAX_FIREWORK_PARTICLES = 2200; // garde-fou pour rester fluide si plusieurs explosions se chevauchent
+const MAX_FIREWORK_PARTICLES = 1100; // garde-fou pour rester fluide si plusieurs explosions se chevauchent
 
 let surpriseOffered = false;
 let fwParticles = [];
@@ -1255,7 +1255,20 @@ FIREWORK_PHOTOS.forEach(src => {
         }
     };
 
-    img.onerror = () => console.warn("Photo du feu d'artifice introuvable :", src);
+    img.onerror = () => {
+    alert("Erreur : " + src);
+};
+
+img.onload = () => {
+    alert("Image chargée : " + src);
+    try {
+        const targets = sampleImageTargets(img);
+        alert("Nombre de points : " + targets.length);
+        photoTargetSets.push(targets);
+    } catch (err) {
+        console.error(err);
+    }
+};
     img.src = src;
 });
 
@@ -1274,8 +1287,8 @@ function sampleImageTargets(img) {
     const data = offCtx.getImageData(0, 0, off.width, off.height).data;
     const targets = [];
 
-    for (let y = 0; y < off.height; y++) {
-        for (let x = 0; x < off.width; x++) {
+    for (let y = 0; y < off.height; y += 4) {
+        for (let x = 0; x < off.width; x += 4) {
             const i = (y * off.width + x) * 4;
             if (data[i + 3] < 40) continue; // pixel transparent : on ignore
 
@@ -1481,20 +1494,22 @@ function explodeFirework(x, y, baseColor) {
     else if (roll < (hasPhotos ? 0.65 : 0.5)) mode = "heart";
 
     if (mode === "burst") {
-        spawnClassicBurst(x, y, baseColor, 70 + Math.floor(Math.random() * 40));
+        spawnClassicBurst(x, y, baseColor, 40 + Math.floor(Math.random() * 20));        
         return;
     }
 
-    const size = 200 + Math.random() * 90;
+    const size = 150 + Math.random() * 50;
     const targets = mode === "photo"
         ? photoTargetSets[Math.floor(Math.random() * photoTargetSets.length)]
         : createHeartTargets();
 
-    targets.forEach(target => {
+
+    const limitedTargets = targets.slice(0, 350);
+    limitedTargets.forEach(target => {
         const color = target.color || baseColor;
         const p = new FireworkParticle(x, y, color);
         p.size = mode === "photo" ? 2.4 : 3;
-        p.setTarget(x + target.dx * size, y + target.dy * size, 1100);
+        p.setTarget(x + target.dx * size, y + target.dy * size, 700);
         fwParticles.push(p);
     });
 }
