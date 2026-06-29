@@ -773,21 +773,30 @@ closeDate.addEventListener("click", closeDatePopup);
 closeFinal.addEventListener("click", closeDatePopup);
 
 /* ---- Étape 0 : Yes / No qui esquive la souris ---- */
-/* (la mécanique d'esquive est partagée avec le bouton "No" de la surprise finale,
-   voir createDodgingNoButton() dans la section SURPRISE FINALE plus bas) */
 
 function handleNoButtonClick() {
-    // 1. On affiche un petit message pour accuser réception de son "Non"
+    // 1. On affiche le message d'erreur
     noErrorMsg.classList.remove("shake");
     void noErrorMsg.offsetWidth; 
-    noErrorMsg.textContent = "Oh... dommage 💔";
+    noErrorMsg.textContent = "Oh dommage 😔";
     noErrorMsg.classList.add("shake");
 
-    // 2. On attend 1,5 seconde pour qu'elle lise, puis on ferme la fenêtre
+    // 2. Au bout de 2 secondes, on efface le message et on remet le bouton à zéro
     setTimeout(() => {
-        closeDatePopup();
-    }, 1500);
+        noErrorMsg.textContent = "";
+        noButtonGame.reset(); 
+    }, 2000);
 }
+
+// Initialisation pour le calendrier (s'arrête bien à 10 pour afficher le message)
+const noButtonGame = createDodgingNoButton(noZone, btnNo, handleNoButtonClick, 10);
+
+function resetNoButtonGame() {
+    noButtonGame.reset();
+    noErrorMsg.textContent = "";
+}
+
+btnYes.addEventListener("click", () => goToDateStep(1));
 
 // On ne garde que CETTE déclaration :
 const noButtonGame = createDodgingNoButton(noZone, btnNo, handleNoButtonClick, 10);
@@ -1110,101 +1119,70 @@ spinBtn.addEventListener("click", spinWheel);
 /**
  * Rend un bouton "fuyant". 
  * Si stayEveryNth > 0, il s'arrête 1 fois sur N. Si stayEveryNth = 0, il n'y a JAMAIS d'arrêt.
- */
-function createDodgingNoButton(zone, button, onFailedClick, stayEveryNth = 0) {
-    const DODGE_RADIUS = 90;
-    const DODGE_COOLDOWN_MS = 200;
+ */// La surprise esquivera à l'infini (999999 fois) et ne fera rien en cas de clic
+createDodgingNoButton(
+    document.querySelector("#surprise-box .date-question-buttons"), 
+    document.getElementById("no-surprise"), 
+    () => {}, 
+    999999
+);
 
-    let isNear = false;
-    let approachCount = 0;
-    let stayThisRound = false;
-    let lastDodgeTime = 0;
+    function dodge(e) {
+        if (isFrozen) return;
 
-    function dodge(pointerX, pointerY) {
-        const zoneRect = zone.getBoundingClientRect();
-        const btnRect = button.getBoundingClientRect();
-
-        const maxX = Math.max(0, zoneRect.width - btnRect.width);
-        const maxY = Math.max(0, zoneRect.height - btnRect.height);
-
-        let newX = 0;
-        let newY = 0;
-        let attempts = 0;
-        let isFarEnough = false;
-
-        while (!isFarEnough && attempts < 12) {
-            newX = Math.random() * maxX;
-            newY = Math.random() * maxY;
-
-            const d = distance(
-                pointerX - zoneRect.left, pointerY - zoneRect.top,
-                newX + btnRect.width / 2, newY + btnRect.height / 2
-            );
-
-            isFarEnough = d > DODGE_RADIUS * 1.4;
-            attempts++;
+        // Dès qu'on atteint la 10e tentative d'approche (esquive), on immobilise le bouton
+        if (dodgeCount >= maxDodges) {
+            isFrozen = true;
+            resetPosition();
+            return;
         }
 
-        button.style.left = `${newX}px`;
-        button.style.top = `${newY + btnRect.height / 2}px`;
+        const rect = button.getBoundingClientRect();
+        const buttonX = rect.left + rect.width / 2;
+        const buttonY = rect.top + rect.height / 2;
+        const dist = Math.hypot(e.clientX - buttonX, e.clientY - buttonY);
+
+        if (dist < 80) {
+            dodgeCount++;
+            
+            const containerRect = container.getBoundingClientRect();
+            const maxX = containerRect.width - rect.width;
+            const maxY = containerRect.height - rect.height;
+            
+            const randomX = Math.max(0, Math.random() * maxX);
+            const randomY = Math.max(0, Math.random() * maxY);
+
+            button.style.position = "absolute";
+            button.style.left = `${randomX}px`;
+            button.style.top = `${randomY}px`;
+            button.style.transform = "none";
+        }
     }
 
-    zone.addEventListener("pointermove", e => {
-        const btnRect = button.getBoundingClientRect();
-        const btnCenterX = btnRect.left + btnRect.width / 2;
-        const btnCenterY = btnRect.top + btnRect.height / 2;
-        const isClose = distance(e.clientX, e.clientY, btnCenterX, btnCenterY) < DODGE_RADIUS;
+    function resetPosition() {
+        button.style.position = originalPosition.position;
+        button.style.left = originalPosition.left;
+        button.style.top = originalPosition.top;
+        button.style.transform = originalPosition.transform;
+    }
 
-        if (!isClose) {
-            isNear = false; 
-            return;
+    window.addEventListener("mousemove", dodge);
+
+    // Déclenche l'action seulement si le bouton est immobilisé
+    button.addEventListener("click", () => {
+        if (isFrozen || dodgeCount >= maxDodges) {
+            onFinalClick();
         }
-
-        if (!isNear) {
-            isNear = true;
-            approachCount++;
-            
-            // Si stayEveryNth > 0 (Calendrier = 10), il s'arrête 1 fois sur 10.
-            // Si stayEveryNth === 0 (Surprise = 0), stayThisRound reste false (Esquive infinie !)
-            stayThisRound = (stayEveryNth > 0) ? (approachCount % stayEveryNth === 0) : false;
-
-            if (!stayThisRound) {
-                dodge(e.clientX, e.clientY);
-                lastDodgeTime = performance.now();
-            }
-            return;
-        }
-
-        if (!stayThisRound && performance.now() - lastDodgeTime > DODGE_COOLDOWN_MS) {
-            dodge(e.clientX, e.clientY);
-            lastDodgeTime = performance.now();
-        }
-    });
-
-    button.addEventListener("pointerdown", e => {
-        if (!stayThisRound) {
-            e.preventDefault();
-            dodge(e.clientX, e.clientY);
-            lastDodgeTime = performance.now();
-        }
-    });
-
-    button.addEventListener("click", e => {
-        e.preventDefault();
-        if (onFailedClick) onFailedClick();
     });
 
     return {
-        reset() {
-            isNear = false;
-            approachCount = 0;
-            stayThisRound = false;
-            lastDodgeTime = 0;
-            button.style.left = "";
-            button.style.top = "";
+        reset: function() {
+            dodgeCount = 0;
+            isFrozen = false;
+            resetPosition();
         }
     };
-}
+                }
 
 /* ============================================================
    SURPRISE FINALE — FEU D'ARTIFICE
