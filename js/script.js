@@ -20,18 +20,18 @@ const PLAYLIST = [
     { title: "Taylor Swift - Love Story", file: "assets/music/Taylor Swift - Love Story .mp3" }
 ];
 
-const LETTER_TEXT = `Coucou mon chaton ❤️‍🔥,
+const LETTER_TEXT = `Hey mon chaton ❤️‍🔥,
 
-Je t'écrit une lettre pour te dire à quel point je t'aime.
+I’m writing you this letter to tell you just how much I love you.
 
-Tu es une personne incoyable vraiment je t'admire beaucoup.
-Je sais que je suis pas parfait mais j'éspère que cette page internet te fera plaisir. J'ai mis du temps à la créer.
-Je t'aime mon amour ne change pas je te promet qu'on va se marier et avoir des enfants.
+You are an incredible person; I truly admire you so much.
+I know I’m not perfect, but I hope this webpage makes you happy. It took me a while to create it.
+I love you, my love—don't ever change. I promise we’re going to get married and have children.
 
-Je t'aime à la folie,
+I love you madly,
 Paul
 
-Mimi bye bye 😘`;
+Mimi, bye-bye 😘`;
 
 const MOIS_FR = [
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -778,7 +778,7 @@ closeFinal.addEventListener("click", closeDatePopup);
 function showNoButtonError() {
     noErrorMsg.classList.remove("shake");
     void noErrorMsg.offsetWidth; // force le redémarrage de l'animation si on reclique vite
-    noErrorMsg.textContent = "❌ Erreur : ce bouton n'existe pas pour toi 😏";
+    noErrorMsg.textContent = "❌ Error: this button doesn't exist for you 😏";
     noErrorMsg.classList.add("shake");
 }
 
@@ -1314,7 +1314,7 @@ function createHeartTargets() {
 const surpriseNoGame = createDodgingNoButton(noSurpriseZone, noSurpriseBtn, () => {
     surpriseErrorMsg.classList.remove("shake");
     void surpriseErrorMsg.offsetWidth; // force le redémarrage de l'animation si on reclique vite
-    surpriseErrorMsg.textContent = "❌ Error: this button still doesn't exist for you ";
+    surpriseErrorMsg.textContent = "❌ Error: this button doesn't exist for you 😏";
     surpriseErrorMsg.classList.add("shake");
 });
 
