@@ -22,11 +22,11 @@ const PLAYLIST = [
 
 const LETTER_TEXT = `Hey my kitten ❤️‍🔥,
 
-I’m writing you this letter to tell you just how much I love you.
+I'm writing you this letter to tell you just how much I love you.
 
 You are an incredible person; I truly admire you so much.
-I know I’m not perfect, but I hope this webpage makes you happy. It took me a while to create it.
-I love you, my love don't ever change. I promise we’re going to get married and have children.
+I know I'm not perfect, but I hope this webpage makes you happy. It took me a while to create it.
+I love you, my love don't ever change. I promise we're going to get married and have children.
 
 I love you madly,
 Paul
@@ -35,6 +35,508 @@ Mimi, bye-bye 😘`;
 
 const MOIS_FR = [
     "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+
+const WHEEL_SEGMENTS = [
+    { decoy: "#ff2f73", reveal: "#FF8AD8", compliment: "You look stunning" },
+    { decoy: "#FCCA00", reveal: "#FF4365", compliment: "Your smile makes me smile" },
+    { decoy: "#00d9ff", reveal: "#E0115F", compliment: "You are my best friend" },
+    { decoy: "#c400ff", reveal: "#FF6FB5", compliment: "You are the most beautiful person in the world" },
+    { decoy: "#ff5da2", reveal: "#C724B1", compliment: "You are irresistible" },
+    { decoy: "#7b1fa2", reveal: "#FF3D81", compliment: "I love you a little more every day" }
+];
+
+const viewedCards = new Set();
+
+/* ============================================================
+   UTILITAIRES
+============================================================ */
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function distance(x1, y1, x2, y2) {
+    return Math.hypot(x2 - x1, y2 - y1);
+}
+
+function isSameDay(a, b) {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+}
+
+function spawnFloatingHearts(container, count = 15) {
+    if (!container || container.childElementCount > 0) return;
+    const emojis = ["❤️", "💖", "💕", "🌸", "❤️‍🔥"];
+    for (let i = 0; i < count; i++) {
+        const heart = document.createElement("div");
+        heart.classList.add("bg-heart");
+        heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        heart.style.left = Math.random() * 100 + "%";
+        heart.style.animationDuration = (Math.random() * 4 + 4) + "s";
+        heart.style.animationDelay = (Math.random() * 5) + "s";
+        container.appendChild(heart);
+    }
+}
+
+/* ============================================================
+   ESQUIVE GÉNÉRIQUE D'UN BOUTON "NO"
+   
+   - maxDodges > 0 : esquive N fois, puis se laisse toucher (affiche "Oh😔",
+     attend 2s, repart pour N nouvelles esquives, indéfiniment)
+   - maxDodges = 0 : esquive à l'INFINI, jamais cliquable
+============================================================ */
+
+function createDodgingNoButton(container, button, onFinalClick, maxDodges) {
+    let dodgeCount = 0;
+    let isFrozen = false;
+
+    const originalPosition = {
+        position: button.style.position || "",
+        left:     button.style.left     || "",
+        top:      button.style.top      || "",
+        transform: button.style.transform || ""
+    };
+
+    function resetPosition() {
+        button.style.position  = originalPosition.position;
+        button.style.left      = originalPosition.left;
+        button.style.top       = originalPosition.top;
+        button.style.transform = originalPosition.transform;
+    }
+
+    function dodge(e) {
+        // Si bouton immobilisé (maxDodges atteint), on ne le fait plus esquiver
+        if (isFrozen) return;
+
+        const rect = button.getBoundingClientRect();
+        const buttonX = rect.left + rect.width  / 2;
+        const buttonY = rect.top  + rect.height / 2;
+        const dist = Math.hypot(e.clientX - buttonX, e.clientY - buttonY);
+
+        if (dist < 90) {
+            // Si maxDodges = 0 → esquive infinie, on n'incrémente pas de compteur bloquant
+            if (maxDodges > 0) {
+                dodgeCount++;
+
+                if (dodgeCount >= maxDodges) {
+                    // Immobilise le bouton après N esquives
+                    isFrozen = true;
+                    resetPosition();
+                    onFinalClick(); // affiche "Oh😔" et attend que resetNoButtonGame() soit appelé
+                    return;
+                }
+            }
+
+            // Repositionnement aléatoire dans le conteneur
+            const containerRect = container.getBoundingClientRect();
+            const maxX = containerRect.width  - rect.width;
+            const maxY = containerRect.height - rect.height;
+
+            button.style.position  = "absolute";
+            button.style.left      = Math.max(0, Math.random() * maxX) + "px";
+            button.style.top       = Math.max(0, Math.random() * maxY) + "px";
+            button.style.transform = "none";
+        }
+    }
+
+    window.addEventListener("mousemove", dodge);
+
+    // Sur mobile : esquive au touchmove
+    window.addEventListener("touchmove", e => {
+        if (e.touches.length > 0) {
+            dodge({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        }
+    }, { passive: true });
+
+    // Clic sur le bouton : ne fait RIEN (ni pour infini, ni avant d'être immobilisé)
+    // → quand isFrozen = true, onFinalClick a déjà été appelé via dodge()
+    button.addEventListener("click", e => {
+        e.preventDefault();
+        // Bouton immobilisé : rien à faire ici, onFinalClick déjà déclenché
+        // Bouton non immobilisé : clic dans le vide, on ignore
+    });
+
+    return {
+        reset() {
+            dodgeCount = 0;
+            isFrozen   = false;
+            resetPosition();
+        }
+    };
+}
+
+/* ============================================================
+   ÉTAT GLOBAL
+============================================================ */
+
+let isPopupOpen = false;
+
+/* ============================================================
+   COEURS DE FOND
+============================================================ */
+
+const heartsContainer = document.getElementById("hearts-container");
+const hearts = [];
+
+HEART_MESSAGES.forEach(message => {
+    const heartElement = document.createElement("div");
+    heartElement.classList.add("heart");
+    heartElement.textContent = message;
+    heartsContainer.appendChild(heartElement);
+
+    hearts.push({
+        element: heartElement,
+        x: Math.random() * (window.innerWidth - 120),
+        y: Math.random() * (window.innerHeight - 110),
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        angle: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 4,
+        scale: 0.7 + Math.random() * 0.8
+    });
+});
+
+function animateHearts() {
+    if (!isPopupOpen) {
+        hearts.forEach(heart => {
+            heart.x += heart.vx;
+            heart.y += heart.vy;
+
+            if (heart.x <= 0 || heart.x >= window.innerWidth - 120) heart.vx *= -1;
+            if (heart.y <= 0 || heart.y >= window.innerHeight - 110) heart.vy *= -1;
+
+            heart.angle += heart.rotationSpeed;
+
+            heart.element.style.transform = `
+                translate3d(${heart.x}px, ${heart.y}px, 0)
+                rotate(${heart.angle}deg)
+                scale(${heart.scale})
+            `;
+        });
+    }
+    requestAnimationFrame(animateHearts);
+}
+
+animateHearts();
+
+window.addEventListener("resize", () => {
+    hearts.forEach(heart => {
+        heart.x = Math.min(heart.x, window.innerWidth - 120);
+        heart.y = Math.min(heart.y, window.innerHeight - 110);
+    });
+});
+
+/* ============================================================
+   MENU MUSIQUE
+============================================================ */
+
+const heartBtn  = document.getElementById("heart-btn");
+const menu      = document.getElementById("menu");
+const musicBtn  = document.getElementById("music-btn");
+const music     = document.getElementById("music");
+const prevBtn   = document.getElementById("prev-btn");
+const nextBtn   = document.getElementById("next-btn");
+
+let currentTrack = 0;
+
+function loadTrack(index) {
+    music.src = PLAYLIST[index].file;
+    musicBtn.textContent = "▶ " + PLAYLIST[index].title;
+}
+
+function playTrack(index) {
+    currentTrack = index;
+    loadTrack(currentTrack);
+    music.play();
+    musicBtn.textContent = "⏸ " + PLAYLIST[currentTrack].title;
+}
+
+loadTrack(currentTrack);
+
+heartBtn.addEventListener("click", () => menu.classList.toggle("open"));
+
+musicBtn.addEventListener("click", () => {
+    if (music.paused) {
+        music.play();
+        musicBtn.textContent = "⏸ " + PLAYLIST[currentTrack].title;
+    } else {
+        music.pause();
+        musicBtn.textContent = "▶ " + PLAYLIST[currentTrack].title;
+    }
+});
+
+nextBtn.addEventListener("click", () => playTrack((currentTrack + 1) % PLAYLIST.length));
+prevBtn.addEventListener("click", () => playTrack((currentTrack - 1 + PLAYLIST.length) % PLAYLIST.length));
+music.addEventListener("ended", () => playTrack((currentTrack + 1) % PLAYLIST.length));
+
+/* ============================================================
+   CARTE 1 — CHRONOMÈTRE DE LA RELATION
+============================================================ */
+
+const firstBox             = document.querySelector(".box-1");
+const timerPopup           = document.getElementById("timer-popup");
+const closeTimer           = document.getElementById("close-timer");
+const timerDisplay         = document.getElementById("relationship-timer");
+const timerHeartsContainer = document.getElementById("timer-hearts");
+
+let timerInterval;
+
+function updateRelationshipTimer() {
+    const startDate = new Date(2025, 11, 8, 18, 17, 35);
+    const now = new Date();
+
+    let years   = now.getFullYear()  - startDate.getFullYear();
+    let months  = now.getMonth()     - startDate.getMonth();
+    let days    = now.getDate()      - startDate.getDate();
+    let hours   = now.getHours()     - startDate.getHours();
+    let minutes = now.getMinutes()   - startDate.getMinutes();
+    let seconds = now.getSeconds()   - startDate.getSeconds();
+
+    if (seconds < 0) { seconds += 60; minutes--; }
+    if (minutes < 0) { minutes += 60; hours--; }
+    if (hours   < 0) { hours   += 24; days--; }
+    if (days    < 0) { days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); months--; }
+    if (months  < 0) { months  += 12; years--; }
+
+    const plural = (v, s, p) => v > 1 ? p : s;
+
+    timerDisplay.innerHTML = `
+        <div class="time-box">${years}<br>${plural(years,   "year",   "years")}</div>
+        <div class="time-box">${months}<br>${plural(months, "month",  "months")}</div>
+        <div class="time-box">${days}<br>${plural(days,     "day",    "days")}</div>
+        <div class="time-box">${hours}<br>${plural(hours,   "hour",   "hours")}</div>
+        <div class="time-box">${minutes}<br>${plural(minutes,"minute","minutes")}</div>
+        <div class="time-box">${seconds}<br>${plural(seconds,"second","seconds")}</div>
+    `;
+}
+
+firstBox.addEventListener("click", () => {
+    markCardViewed(1);
+    isPopupOpen = true;
+    timerPopup.style.display = "block";
+    spawnFloatingHearts(timerHeartsContainer);
+    setTimeout(() => timerPopup.classList.add("active"), 10);
+    updateRelationshipTimer();
+    timerInterval = setInterval(updateRelationshipTimer, 1000);
+});
+
+closeTimer.addEventListener("click", () => {
+    isPopupOpen = false;
+    timerPopup.classList.remove("active");
+    clearInterval(timerInterval);
+    setTimeout(() => { timerPopup.style.display = "none"; maybeOfferSurprise(); }, 400);
+});
+
+/* ============================================================
+   CARTE 2 — JARDIN DE FLEURS
+============================================================ */
+
+const secondBox   = document.querySelector(".box-2");
+const flowersPopup = document.getElementById("flowers-popup");
+const closeFlowers = document.getElementById("close-flowers");
+const flowersRoot  = document.getElementById("flowers");
+
+secondBox.addEventListener("click", () => {
+    markCardViewed(2);
+    isPopupOpen = true;
+    flowersPopup.style.display = "block";
+    flowersRoot.classList.remove("grown");
+    setTimeout(() => {
+        flowersPopup.classList.add("active");
+        requestAnimationFrame(() => flowersRoot.classList.add("grown"));
+    }, 10);
+});
+
+closeFlowers.addEventListener("click", () => {
+    isPopupOpen = false;
+    flowersPopup.classList.remove("active");
+    setTimeout(() => { flowersPopup.style.display = "none"; maybeOfferSurprise(); }, 400);
+});
+
+function buildBloom(bloomEl, petalCount, radius) {
+    for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement("div");
+        petal.className = "petal";
+        petal.style.transform = `rotate(${(360 / petalCount) * i}deg)`;
+        petal.style.height    = radius + "px";
+        petal.style.marginTop = (-radius) + "px";
+        bloomEl.appendChild(petal);
+    }
+    const core = document.createElement("div");
+    core.className = "core";
+    bloomEl.appendChild(core);
+}
+
+buildBloom(document.getElementById("bloom1"), 8, 36);
+buildBloom(document.getElementById("bloom2"), 9, 42);
+buildBloom(document.getElementById("bloom3"), 7, 34);
+
+const heartsLayer  = document.getElementById("flowers-hearts");
+const heartColors  = ["#ff2bd6","#ff5da2","#ff2974","#c400ff","#00eaff","#ff8af0","#ff0090"];
+
+for (let i = 0; i < 26; i++) {
+    const h     = document.createElement("div");
+    h.className = "flower-heart";
+    const color    = heartColors[Math.floor(Math.random() * heartColors.length)];
+    const duration = 7 + Math.random() * 8;
+    h.textContent  = "❤";
+    h.style.left   = Math.random() * 100 + "%";
+    h.style.color  = color;
+    h.style.fontSize   = (12 + Math.random() * 22) + "px";
+    h.style.textShadow = `0 0 6px ${color}, 0 0 14px ${color}, 0 0 24px ${color}`;
+    h.style.setProperty("--d", (30 + Math.random() * 70).toFixed(1));
+    h.style.setProperty("--s", (0.6 + Math.random() * 0.9).toFixed(2));
+    h.style.animationDuration = duration.toFixed(2) + "s";
+    h.style.animationDelay   = (-Math.random() * duration).toFixed(2) + "s";
+    heartsLayer.appendChild(h);
+}
+
+const flowersScene      = document.getElementById("flowers-scene");
+const flowersCursorGlow = document.getElementById("flowers-cursor-glow");
+const flowersHint       = document.getElementById("flowers-hint");
+
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+
+function updatePointer(x, y) {
+    if (!flowersPopup.classList.contains("active")) return;
+    mouseX = x; mouseY = y;
+    flowersCursorGlow.style.transform = `translate(${x}px, ${y}px)`;
+    flowersHint.classList.add("fade");
+}
+
+flowersScene.addEventListener("mousemove", e => updatePointer(e.clientX, e.clientY));
+
+const flowers = [
+    { el: document.getElementById("f1"), baseFan: -40, windAmp: 6, windFreq: 0.55, phase: 0   },
+    { el: document.getElementById("f2"), baseFan: -25, windAmp: 5, windFreq: 0.42, phase: 1.4 },
+    { el: document.getElementById("f3"), baseFan: -10, windAmp: 7, windFreq: 0.50, phase: 2.7 }
+];
+
+let flowersBaseX = 0;
+function updateFlowersBase() { flowersBaseX = flowersRoot.getBoundingClientRect().left; }
+updateFlowersBase();
+window.addEventListener("resize", updateFlowersBase);
+
+function animateFlowers(time) {
+    if (flowersPopup.classList.contains("active")) {
+        const t  = time * 0.001;
+        const dx = mouseX - flowersBaseX;
+        flowers.forEach(f => {
+            const wind = Math.sin(t * f.windFreq + f.phase) * f.windAmp
+                       + Math.sin(t * f.windFreq * 2.3 + f.phase * 1.7) * (f.windAmp * 0.25);
+            const total = f.baseFan + wind + clamp(dx / 20, -25, 25);
+            f.el.style.transform = `rotate(${total}deg)`;
+        });
+    }
+    requestAnimationFrame(animateFlowers);
+}
+requestAnimationFrame(animateFlowers);
+
+/* ============================================================
+   CARTE 3 — PARTICULES NÉON
+============================================================ */
+
+const thirdBox           = document.querySelector(".box-3");
+const particlesPopup     = document.getElementById("particles-popup");
+const closeParticles     = document.getElementById("close-particles");
+const particlesContent   = document.getElementById("particles-content");
+const canvas             = document.getElementById("canvas");
+const ctx                = canvas.getContext("2d");
+const particlesCursorGlow = document.getElementById("particles-cursor-glow");
+
+const PARTICLE_COUNT = 2000;
+const particlesArray = [];
+
+let particlesAnimationId;
+let heartFormed      = false;
+let globalAlphaValue = 1.0;
+
+particlesContent.addEventListener("mousemove", e => {
+    const rect = particlesContent.getBoundingClientRect();
+    particlesCursorGlow.style.transform =
+        `translate3d(${e.clientX - rect.left}px, ${e.clientY - rect.top}px, 0)`;
+});
+
+thirdBox.addEventListener("click", () => {
+    markCardViewed(3);
+    isPopupOpen = true;
+    particlesPopup.style.display = "block";
+    setTimeout(() => {
+        particlesPopup.classList.add("active");
+        resizeCanvas();
+        initParticles();
+        heartFormed      = false;
+        globalAlphaValue = 1.0;
+        animateCanvas();
+    }, 10);
+});
+
+closeParticles.addEventListener("click", () => {
+    isPopupOpen = false;
+    particlesPopup.classList.remove("active");
+    setTimeout(() => {
+        particlesPopup.style.display = "none";
+        cancelAnimationFrame(particlesAnimationId);
+        particlesArray.length = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        maybeOfferSurprise();
+    }, 400);
+});
+
+function resizeCanvas() {
+    canvas.width  = particlesContent.clientWidth;
+    canvas.height = particlesContent.clientHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+
+function neonColor() { return `hsl(${Math.random() * 360}, 100%, 65%)`; }
+
+class Particle {
+    constructor() {
+        this.x  = Math.random() * canvas.width;
+        this.y  = Math.random() * canvas.height;
+        this.tx = this.x; this.ty = this.y;
+        this.vx = (Math.random() - 0.5) * 3;
+        this.vy = (Math.random() - 0.5) * 3;
+        this.size  = Math.random() * 1.8 + 1;
+        this.color = neonColor();
+    }
+    update() {
+        if (heartFormed) {
+            const dx = this.tx - this.x, dy = this.ty - this.y;
+            this.vx += dx * 0.006; this.vy += dy * 0.006;
+            this.vx *= 0.93;       this.vy *= 0.93;
+        } else {
+            if (this.x < 0 || this.x > canvas.width)  this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height)  this.vy *= -1;
+            this.vx *= 0.998; this.vy *= 0.998;
+        }
+        this.x += this.vx; this.y += this.vy;
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+}
+
+function initParticles() {
+    particlesArray.length = 0;
+    for (let i = 0; i < PARTICLE_COUNT; i++) particlesArray.push(new Particle());
+}
+
+function createHeartPoints(cx, cy) {
+    const points = [];
+    const scale  = Math.min(canvas.width, canvas.height) / 45;
+    for (let t = 0; t < Math.PI * 2; t += 0.003) {
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+        points.push({ x: cx + x * scale, y: cy - y * scale });    "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
 
