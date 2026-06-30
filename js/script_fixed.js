@@ -718,10 +718,10 @@ function handleNoButtonReached() {
     noErrorMsg.classList.add("shake");
 
     // Après 2 s, on efface le message et on repart pour 10 nouvelles esquives
-    setTimeout(() => {
+    noButtonGame.addEventListener("click", () => 
         noErrorMsg.textContent = "";
         noButtonGame.reset();  // remet dodgeCount à 0 et débloque l'esquive
-    }, 2000);
+    );
 }
 
 // maxDodges = 10 → esquive 10 fois, puis se laisse "toucher" (déclenche handleNoButtonReached)
