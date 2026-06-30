@@ -686,7 +686,7 @@ function resetDateFlow() {
     calendarViewDate          = new Date();
     validateCalendar.disabled = true;
     noErrorMsg.textContent    = "";
-    noButtonGame.reset();
+    noErrorMsg.textContent = "";
     goToDateStep(0);
 }
 
@@ -710,26 +710,19 @@ closeFinal.addEventListener("click", closeDatePopup);
 
 /* ---- Bouton "No" de la carte 5 : esquive 10 fois puis se laisse toucher ---- */
 
-function handleNoButtonReached() {
-    // Le bouton est maintenant immobilisé : on affiche "Oh😔"
-    noErrorMsg.classList.remove("shake");
-    void noErrorMsg.offsetWidth;
-    noErrorMsg.textContent = "Oh😔";
-    noErrorMsg.classList.add("shake");
-
-    // Après 2 s, on efface le message et on repart pour 10 nouvelles esquives
-    noButtonGame.addEventListener("click", () => 
-        noErrorMsg.textContent = "";
-        noButtonGame.reset();  // remet dodgeCount à 0 et débloque l'esquive
-    );
-}
-
-// maxDodges = 10 → esquive 10 fois, puis se laisse "toucher" (déclenche handleNoButtonReached)
-const noButtonGame = createDodgingNoButton(noZone, btnNo, handleNoButtonReached, 10);
-
 btnYes.addEventListener("click", () => goToDateStep(1));
 
+
 /* ---- Étape 1 : thème ---- */
+
+btnNo.addEventListener("click", () => {
+    noErrorMsg.classList.remove("shake");
+    void noErrorMsg.offsetWidth;
+
+    noErrorMsg.textContent = "Oh😔";
+    noErrorMsg.classList.add("shake");
+});
+
 
 themeCards.forEach(card => {
     card.addEventListener("click", () => {
