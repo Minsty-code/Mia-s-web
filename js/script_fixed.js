@@ -263,13 +263,12 @@ loadTrack(currentTrack);
 
 heartBtn.addEventListener("click", () => menu.classList.toggle("open"));
 
-musicBtn.addEventListener("click", () => {
-    if (music.paused) {
-        music.play().catch(err => alert("Erreur play() : " + err.message));
-        musicBtn.textContent = "⏸ " + PLAYLIST[currentTrack].title;
-    } else {
-        music.pause();
-        musicBtn.textContent = "▶ " + PLAYLIST[currentTrack].title;
+musicBtn.addEventListener("click", async () => {
+    try {
+        await music.play();
+        alert("Lecture OK");
+    } catch (e) {
+        alert(e.name + " : " + e.message);
     }
 });
 
