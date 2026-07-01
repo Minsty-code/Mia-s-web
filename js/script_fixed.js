@@ -12,12 +12,12 @@ const HEART_MESSAGES = [
 ];
 
 const PLAYLIST = [
-    { title: "Stephen Sanchez - Until I Found You", file: "assets/music/Stephen Sanchez - Until I Found You .mp3" },
-    { title: "JAWNY - Honeypie", file: "assets/music/JAWNY - Honeypie .mp3" },
-    { title: "Benson Boone - Beautiful Things", file: "assets/music/Benson Boone - Beautiful Things .mp3" },
-    { title: "Damiano David - The first time", file: "assets/music/Damiano David - The first time .mp3" },
+    { title: "Stephen Sanchez - Until I Found You", file: "assets/music/Stephen Sanchez - Until I Found You.mp3" },
+    { title: "JAWNY - Honeypie", file: "assets/music/JAWNY - Honeypie.mp3" },
+    { title: "Benson Boone - Beautiful Things", file: "assets/music/Benson Boone - Beautiful Things.mp3" },
+    { title: "Damiano David - The first time", file: "assets/music/Damiano David - The first time.mp3" },
     { title: "Ed Sheeran - Perfect", file: "assets/music/Ed Sheeran - Perfect.mp3" },
-    { title: "Taylor Swift - Love Story", file: "assets/music/Taylor Swift - Love Story .mp3" }
+    { title: "Taylor Swift - Love Story", file: "assets/music/Taylor Swift - Love Story.mp3" }
 ];
 
 const LETTER_TEXT = `Hey my kitten ❤️‍🔥,
@@ -242,6 +242,11 @@ const nextBtn   = document.getElementById("next-btn");
 
 let currentTrack = 0;
 
+// Alerte temporaire pour voir les erreurs de chargement (fichier introuvable, mauvais chemin, etc.)
+music.addEventListener("error", () => {
+    alert("Erreur audio : " + (music.error ? music.error.message : "inconnue") + " — src: " + music.src);
+});
+
 function loadTrack(index) {
     music.src = PLAYLIST[index].file;
     musicBtn.textContent = "▶ " + PLAYLIST[index].title;
@@ -250,7 +255,7 @@ function loadTrack(index) {
 function playTrack(index) {
     currentTrack = index;
     loadTrack(currentTrack);
-    music.play();
+    music.play().catch(err => alert("Erreur play() : " + err.message));
     musicBtn.textContent = "⏸ " + PLAYLIST[currentTrack].title;
 }
 
@@ -260,7 +265,7 @@ heartBtn.addEventListener("click", () => menu.classList.toggle("open"));
 
 musicBtn.addEventListener("click", () => {
     if (music.paused) {
-        music.play();
+        music.play().catch(err => alert("Erreur play() : " + err.message));
         musicBtn.textContent = "⏸ " + PLAYLIST[currentTrack].title;
     } else {
         music.pause();
