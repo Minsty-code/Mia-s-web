@@ -242,11 +242,6 @@ const nextBtn   = document.getElementById("next-btn");
 
 let currentTrack = 0;
 
-// Alerte temporaire pour voir les erreurs de chargement (fichier introuvable, mauvais chemin, etc.)
-music.addEventListener("error", () => {
-    alert("Erreur audio : " + (music.error ? music.error.message : "inconnue") + " — src: " + music.src);
-});
-
 function loadTrack(index) {
     music.src = PLAYLIST[index].file;
     musicBtn.textContent = "▶ " + PLAYLIST[index].title;
@@ -255,7 +250,7 @@ function loadTrack(index) {
 function playTrack(index) {
     currentTrack = index;
     loadTrack(currentTrack);
-    music.play().catch(err => alert("Erreur play() : " + err.message));
+    music.play().catch(err => console.error(err));
     musicBtn.textContent = "⏸ " + PLAYLIST[currentTrack].title;
 }
 
