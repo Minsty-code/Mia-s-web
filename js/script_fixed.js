@@ -13,11 +13,11 @@ const HEART_MESSAGES = [
 
 const PLAYLIST = [
     { title: "Stephen Sanchez - Until I Found You", file: "assets/music/Stephen Sanchez - Until I Found You.mp3" },
+    { title: "Taylor Swift - Love Story", file: "assets/music/Taylor Swift - Love Story.mp3" },
     { title: "JAWNY - Honeypie", file: "assets/music/JAWNY - Honeypie.mp3" },
     { title: "Benson Boone - Beautiful Things", file: "assets/music/Benson Boone - Beautiful Things.mp3" },
     { title: "Damiano David - The first time", file: "assets/music/Damiano David - The first time.mp3" },
     { title: "Ed Sheeran - Perfect", file: "assets/music/Ed Sheeran - Perfect.mp3" },
-    { title: "Taylor Swift - Love Story", file: "assets/music/Taylor Swift - Love Story.mp3" }
 ];
 
 const LETTER_TEXT = `Hey my kitten ❤️‍🔥,
